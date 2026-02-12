@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
-// TODO: Replace with your app's Firebase project configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_AUTH_DOMAIN",
@@ -11,6 +10,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+
+console.log("Firebase initialized with project:", firebaseConfig.projectId);
+if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+  console.error("CRITICAL: Firebase API Key is not set! Please check your .env file.");
+}
+
+enableIndexedDbPersistence(db).catch((err) => {
+  console.warn("Firestore persistence failed", err.code);
+});

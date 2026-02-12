@@ -5,93 +5,92 @@ import './KitchenDisplay.css';
 const KitchenDisplay = () => {
     const { orders, updateOrderStatus } = useOrders();
     const [now, setNow] = useState(new Date());
-    const [cancelTarget, setCancelTarget] = useState(null); // ID of order to cancel
 
-    // Update timer every second
+    // Update timer every second for real-time lag-free feel
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    // Filter only pending/active orders
+    // Filter only pending orders
     const activeOrders = orders.filter(o => o.status === 'pending');
 
-    const getElapsedTime = (createdAt) => {
-        if (!createdAt) return '0:00';
-        const diff = Math.floor((now - createdAt) / 1000); // seconds
-        const m = Math.floor(diff / 60);
-        const s = diff % 60;
+    // Flatten orders into individual "latte banners"
+    const latteBanners = activeOrders.flatMap(order => {
+        return order.items
+            .filter(item => item.id === 'latte' || item.id === 'latte_topping')
+            .map((item, index) => ({
+                ...item,
+                orderId: order.id,
+                createdAt: order.createdAt,
+                uniqueKey: `${order.id}-${index}`
+            }));
+    });
+
+    const getElapsedTimeSeconds = (createdAt) => {
+        if (!createdAt) return 0;
+        return Math.floor((now - createdAt) / 1000);
+    };
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
         return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
-    const handleComplete = (id) => {
-        // Play sound (placeholder)
-        // const audio = new Audio('/sounds/complete.mp3');
-        // audio.play().catch(e => console.log('Audio play failed', e));
-        updateOrderStatus(id, 'completed');
+    const getTimeColorClass = (seconds) => {
+        if (seconds >= 300) return 'urgent-time';   // 5+ mins
+        if (seconds >= 180) return 'warning-time';  // 3+ mins
+        return 'normal-time';
     };
 
-    const confirmCancel = () => {
-        if (cancelTarget) {
-            updateOrderStatus(cancelTarget, 'cancelled');
-            setCancelTarget(null);
-        }
+    const handleComplete = (orderId) => {
+        // In this version, completing a latte banner completes the whole order for simplicity.
+        // If there are other items in the order, they will also be cleared.
+        updateOrderStatus(orderId, 'completed');
     };
 
     return (
-        <div className="kitchen-container">
-            <h1 className="kitchen-title">調理場モニター ({activeOrders.length}件)</h1>
+        <div className="kitchen-banner-container">
+            <h1 className="kitchen-banner-title">抹茶ラテ 注文状況 ({latteBanners.length}件)</h1>
 
-            <div className="orders-list">
-                {activeOrders.length === 0 && <div className="no-orders">注文待ち...</div>}
+            <div className="banners-list">
+                {latteBanners.length === 0 && (
+                    <div className="no-banners">
+                        注文待ち...
+                        <div className="sub-text">抹茶ラテの注文が入るとここに表示されます</div>
+                    </div>
+                )}
 
-                {activeOrders.map(order => (
-                    <div key={order.id} className="kitchen-order-card">
-                        <div className="card-header">
-                            <span className="order-time-elapsed">{getElapsedTime(order.createdAt)}経過</span>
-                            <div className="card-actions">
+                {latteBanners.map(banner => {
+                    const elapsed = getElapsedTimeSeconds(banner.createdAt);
+                    const isTopping = banner.id === 'latte_topping';
+
+                    return (
+                        <div
+                            key={banner.uniqueKey}
+                            className={`kitchen-banner ${isTopping ? 'banner-topping' : 'banner-normal'}`}
+                        >
+                            <div className="banner-left">
+                                <span className="product-info">{banner.name}</span>
+                                <span className="product-qty">✖️ {banner.quantity}</span>
+                            </div>
+
+                            <div className="banner-right">
                                 <button
-                                    className="action-btn btn-cancel"
-                                    onClick={() => setCancelTarget(order.id)}
-                                >
-                                    キャンセル
-                                </button>
-                                <button
-                                    className="action-btn btn-complete"
-                                    onClick={() => handleComplete(order.id)}
+                                    className="complete-btn-kitchen"
+                                    onClick={() => handleComplete(banner.orderId)}
                                 >
                                     完了
                                 </button>
+                                <div className={`time-counter ${getTimeColorClass(elapsed)}`}>
+                                    {formatTime(elapsed)}
+                                </div>
                             </div>
                         </div>
-
-                        <div className="card-items">
-                            {order.items.map((item, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`order-item ${item.id === 'latte_topping' ? 'highlight-topping' : ''} ${item.id === 'latte' ? 'highlight-latte' : ''}`}
-                                >
-                                    <span className="item-name">{item.name}</span>
-                                    <span className="item-qty">x{item.quantity}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
-
-            {/* Cancel Confirmation Modal */}
-            {cancelTarget && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>本当にキャンセルしますか？</h2>
-                        <div className="modal-buttons">
-                            <button className="modal-btn btn-back" onClick={() => setCancelTarget(null)}>戻る</button>
-                            <button className="modal-btn btn-confirm" onClick={confirmCancel}>はい、キャンセルします</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

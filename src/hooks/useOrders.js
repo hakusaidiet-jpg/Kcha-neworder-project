@@ -21,13 +21,14 @@ export const useOrders = () => {
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const ordersData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                // Convert Firestore Timestamp to Date object for easier handling
-                createdAt: doc.data().createdAt?.toDate() || new Date(),
-            }));
-            // Filter for active orders locally or use compound query if indexed
+            const ordersData = snapshot.docs.map(doc => {
+                const data = doc.data({ serverTimestamps: 'estimate' });
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date(),
+                };
+            });
             setOrders(ordersData);
             setLoading(false);
         }, (error) => {
@@ -39,19 +40,24 @@ export const useOrders = () => {
     }, []);
 
     const addOrder = async (items, totalAmount, receivedAmount) => {
-        if (!db) return;
+        if (!db) {
+            console.error("addOrder failed: Firestore 'db' is not initialized.");
+            return false;
+        }
+        console.log("addOrder calling Firestore with:", { items, totalAmount, receivedAmount });
         try {
-            await addDoc(collection(db, 'orders'), {
-                items, // Array of { name, price, quantity, type }
+            const docRef = await addDoc(collection(db, 'orders'), {
+                items,
                 totalAmount,
                 receivedAmount,
                 change: receivedAmount - totalAmount,
-                status: 'pending', // pending -> completed -> cancelled
+                status: 'pending',
                 createdAt: serverTimestamp(),
             });
+            console.log("addOrder SUCCESS. Doc ID:", docRef.id);
             return true;
         } catch (error) {
-            console.error("Error adding order:", error);
+            console.error("addOrder ERROR in Firestore write:", error);
             return false;
         }
     };
