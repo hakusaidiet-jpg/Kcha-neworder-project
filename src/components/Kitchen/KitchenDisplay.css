@@ -1,0 +1,189 @@
+.kitchen-container {
+    padding: 20px;
+    background-color: #222;
+    /* Dark mode for kitchen? Or maybe just high contrast */
+    min-height: 100vh;
+    color: white;
+}
+
+.kitchen-title {
+    margin: 0 0 20px 0;
+    font-size: 2rem;
+    border-bottom: 1px solid #555;
+    padding-bottom: 10px;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.no-orders {
+    text-align: center;
+    font-size: 2rem;
+    color: #777;
+    margin-top: 50px;
+}
+
+.kitchen-order-card {
+    background: #333;
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 10px solid #888;
+    /* Default border color */
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.order-time-elapsed {
+    font-size: 1.5rem;
+    color: #fb8c00;
+    font-weight: bold;
+}
+
+.card-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    font-size: 1.2rem;
+    padding: 8px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-complete {
+    background-color: #43a047;
+    color: white;
+    box-shadow: 0 4px 0 #2e7d32;
+}
+
+.btn-complete:active {
+    box-shadow: 0 2px 0 #2e7d32;
+    transform: translateY(2px);
+}
+
+.btn-cancel {
+    background-color: #e53935;
+    color: white;
+    box-shadow: 0 4px 0 #c62828;
+}
+
+.btn-cancel:active {
+    box-shadow: 0 2px 0 #c62828;
+    transform: translateY(2px);
+}
+
+
+.card-items {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #444;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1.5rem;
+}
+
+/* Color coding for specific items */
+.highlight-latte {
+    background: #c5e1a5;
+    /* Light green */
+    color: #33691e;
+    border: 2px solid #7cb342;
+}
+
+.highlight-topping {
+    background: #f48fb1;
+    /* Pink */
+    color: #880e4f;
+    border: 2px solid #d81b60;
+}
+
+.item-qty {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    color: #333;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 80%;
+    max-width: 400px;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.modal-btn {
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-back {
+    background: #ddd;
+}
+
+.btn-confirm {
+    background: #e53935;
+    color: white;
+}

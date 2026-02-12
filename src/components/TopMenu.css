@@ -1,0 +1,72 @@
+.top-menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100vh;
+  width: 100vw;
+  gap: 20px;
+  /* Add whitespace between buttons */
+  padding: 20px;
+  /* Add whitespace around the edges */
+  box-sizing: border-box;
+  background-color: #fff;
+  /* White background for the gaps */
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10rem;
+  /* Massive text */
+  /* Larger text */
+  font-weight: 800;
+  /* Bolder */
+  font-family: "M PLUS Rounded 1c", sans-serif !important;
+  /* Force font */
+  text-align: center;
+  line-height: 1.1;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 60px;
+  /* Rounded corners for 'pop' feel */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  /* Soft shadow for depth */
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.menu-item:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-1 {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.item-2 {
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.item-3 {
+  background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.item-4 {
+  background: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%);
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
