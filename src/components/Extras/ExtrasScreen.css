@@ -106,7 +106,8 @@
 }
 
 .memo-item {
-    background: #f8f8f8;
+    background: #e5e5e5;
+    /* Darker gray for better contrast */
     padding: 15px;
     border-radius: 20px;
     margin-bottom: 12px;
