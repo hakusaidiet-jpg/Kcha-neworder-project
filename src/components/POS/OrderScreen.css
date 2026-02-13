@@ -257,7 +257,7 @@
     border-radius: 15px;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(26, 35, 126, 0.3);
-    height: 75px;
+    height: 80px;
     /* Match other keys */
 }
 
@@ -281,27 +281,9 @@
     }
 }
 
-/* Match other keys */
+100% {
+    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0);
 }
-
-.complete-btn.ready {
-    background: #e91e63;
-    /* Pink when ready */
-    animation: pulse-glow 2s infinite;
-}
-
-@keyframes pulse-glow {
-    0% {
-        box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(233, 30, 99, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(233, 30, 99, 0);
-    }
 }
 
 .complete-btn:active {
