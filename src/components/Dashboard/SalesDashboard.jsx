@@ -7,58 +7,50 @@ const SalesDashboard = () => {
     const [expenses, setExpenses] = useState([]);
     const [newExpense, setNewExpense] = useState({ name: '', amount: '' });
 
-    // Filter completed orders
-    const completedOrders = useMemo(() => orders.filter(o => o.status === 'completed'), [orders]);
+    // Filter completed orders for TODAY only
+    const completedOrders = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return orders.filter(o => {
+            const isCompleted = o.status === 'completed';
+            const orderDate = o.createdAt;
+            return isCompleted && orderDate >= today;
+        });
+    }, [orders]);
 
-    // key stats
+    // Key Stats
     const totalRevenue = useMemo(() => completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0), [completedOrders]);
     const totalExpenses = useMemo(() => expenses.reduce((sum, e) => sum + e.amount, 0), [expenses]);
     const netProfit = totalRevenue - totalExpenses;
 
-    // Item Breakdown
-    const itemCounts = useMemo(() => {
-        const counts = { tea: 0, manju: 0, latte: 0, latte_topping: 0 };
+    // Item Breakdown with Units
+    const itemStats = useMemo(() => {
+        const stats = {
+            tea: { name: 'お茶席', count: 0, unit: '席' },
+            manju: { name: '紅白饅頭', count: 0, unit: '箱' },
+            latte: { name: '抹茶ラテ', count: 0, unit: '杯' },
+            latte_topping: { name: 'トッピング', count: 0, unit: '杯' }
+        };
         completedOrders.forEach(o => {
             o.items.forEach(item => {
-                if (counts[item.id] !== undefined) {
-                    counts[item.id] += item.quantity;
+                if (stats[item.id]) {
+                    stats[item.id].count += item.quantity;
                 }
             });
         });
-        return counts;
+        return stats;
     }, [completedOrders]);
 
-    // Time Series Data (Group by Hour)
-    const timeSeriesData = useMemo(() => {
-        const data = {}; // { "10": 5, "11": 8... }
-        // Initialize hours 10:00 to 18:00
-        for (let i = 10; i <= 18; i++) data[i] = 0;
-
-        completedOrders.forEach(o => {
-            const date = o.createdAt; // Date object from hook
-            if (date) {
-                const hour = date.getHours();
-                if (data[hour] !== undefined) {
-                    data[hour] += 1; // Count orders (or items? prompt said "how many cups ordered", let's count orders for now or items?) 
-                    // Prompt: "Visualize... how many cups ordered... time vs count"
-                    // To be precise, let's count *items* roughly or just orders. Let's count *total items sold* per hour for the graph.
-                    // Actually prompt says "Matcha latte normal and topping separated by color".
-                    // That implies a multi-line graph.
-                }
-            }
-        });
-        return data;
-    }, [completedOrders]);
-
-    // Specific Time Series for Graph (Multi-line)
+    // Time Series Data (10:00 - 18:00)
     const graphData = useMemo(() => {
-        // Structure: { "10": { latte: 0, topping: 0 }, "11": ... }
         const data = {};
-        for (let i = 10; i <= 16; i++) data[i] = { latte: 0, topping: 0 }; // 10:00 - 16:00 (Festival time)
+        for (let i = 10; i <= 18; i++) {
+            data[i] = { latte: 0, topping: 0 };
+        }
 
         completedOrders.forEach(o => {
             const h = o.createdAt?.getHours();
-            if (data[h]) {
+            if (h >= 10 && h <= 18 && data[h]) {
                 o.items.forEach(i => {
                     if (i.id === 'latte') data[h].latte += i.quantity;
                     if (i.id === 'latte_topping') data[h].topping += i.quantity;
@@ -67,7 +59,6 @@ const SalesDashboard = () => {
         });
         return data;
     }, [completedOrders]);
-
 
     const handleAddExpense = (e) => {
         e.preventDefault();
@@ -80,122 +71,145 @@ const SalesDashboard = () => {
         setExpenses(expenses.filter(e => e.id !== id));
     };
 
-    // Simple SVG Graph Generator
+    // Premium SVG Graph Generator
     const renderGraph = () => {
-        const hours = Object.keys(graphData);
-        const height = 300;
-        const width = 600;
-        const padding = 40;
-        const maxVal = Math.max(
-            ...Object.values(graphData).map(d => Math.max(d.latte, d.topping)),
-            10 // Minimum scale
-        );
+        const hours = Object.keys(graphData).map(Number);
+        const height = 400;
+        const width = 800;
+        const paddingLeft = 60;
+        const paddingRight = 40;
+        const paddingTop = 40;
+        const paddingBottom = 60;
 
-        const getX = (index) => padding + (index * (width - padding * 2) / (hours.length - 1));
-        const getY = (val) => height - padding - (val * (height - padding * 2) / maxVal);
+        const maxVal = 100; // Fixed max cups
 
-        // Generate path d
+        const getX = (hour) => paddingLeft + ((hour - 10) * (width - paddingLeft - paddingRight) / (18 - 10));
+        const getY = (val) => height - paddingBottom - (Math.min(val, maxVal) * (height - paddingTop - paddingBottom) / maxVal);
+
         const makePath = (type) => {
             return hours.map((h, i) =>
-                `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(graphData[h][type])}`
+                `${i === 0 ? 'M' : 'L'} ${getX(h)} ${getY(graphData[h][type])}`
             ).join(' ');
         };
 
         return (
-            <svg viewBox={`0 0 ${width} ${height}`} className="sales-graph">
-                {/* Grid & Axis */}
-                <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#333" strokeWidth="2" />
-                <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#333" strokeWidth="2" />
-
-                {/* Labels */}
-                {hours.map((h, i) => (
-                    <text key={h} x={getX(i)} y={height - 10} textAnchor="middle" fontSize="12">{h}:00</text>
-                ))}
-
-                {/* Lines */}
-                <path d={makePath('latte')} fill="none" stroke="#81c784" strokeWidth="3" />
-                <path d={makePath('topping')} fill="none" stroke="#f06292" strokeWidth="3" />
-
-                {/* Points */}
-                {hours.map((h, i) => (
-                    <g key={h}>
-                        <circle cx={getX(i)} cy={getY(graphData[h].latte)} r="4" fill="#81c784" />
-                        <circle cx={getX(i)} cy={getY(graphData[h].topping)} r="4" fill="#f06292" />
+            <svg viewBox={`0 0 ${width} ${height}`} className="premium-graph">
+                {/* Background Grid */}
+                {[0, 25, 50, 75, 100].map(val => (
+                    <g key={val}>
+                        <line
+                            x1={paddingLeft} y1={getY(val)} x2={width - paddingRight} y2={getY(val)}
+                            stroke="#e0e0e0" strokeDasharray="5,5"
+                        />
+                        <text x={paddingLeft - 10} y={getY(val) + 5} textAnchor="end" fontSize="14" fill="#666">{val}</text>
                     </g>
                 ))}
+
+                {/* Axes */}
+                <line x1={paddingLeft} y1={height - paddingBottom} x2={width - paddingRight} y2={height - paddingBottom} stroke="#333" strokeWidth="2" />
+                <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={height - paddingBottom} stroke="#333" strokeWidth="2" />
+
+                {/* X Axis Labels */}
+                {hours.map(h => (
+                    <text key={h} x={getX(h)} y={height - 20} textAnchor="middle" fontSize="14" fill="#333">{h}:00</text>
+                ))}
+
+                {/* Data Lines */}
+                <path d={makePath('latte')} fill="none" stroke="#2E2300" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={makePath('topping')} fill="none" stroke="#DE9501" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+
+                {/* Data Points */}
+                {hours.map(h => (
+                    <g key={h}>
+                        <circle cx={getX(h)} cy={getY(graphData[h].latte)} r="6" fill="#fff" stroke="#2E2300" strokeWidth="3" />
+                        <circle cx={getX(h)} cy={getY(graphData[h].topping)} r="6" fill="#fff" stroke="#DE9501" strokeWidth="3" />
+                    </g>
+                ))}
+
+                {/* Legend */}
+                <g transform={`translate(${width - 200}, ${paddingTop})`}>
+                    <line x1="0" y1="0" x2="20" y2="0" stroke="#2E2300" strokeWidth="4" />
+                    <text x="25" y="5" fontSize="14">抹茶ラテ</text>
+                    <line x1="0" y1="25" x2="20" y2="25" stroke="#DE9501" strokeWidth="4" />
+                    <text x="25" y="30" fontSize="14">トッピング</text>
+                </g>
             </svg>
         );
     };
 
     return (
-        <div className="dashboard-container">
-            <h1 className="dashboard-title">売上管理・収支報告</h1>
+        <div className="dashboard-root">
+            <div className="dashboard-content">
+                <header className="dashboard-header">
+                    <h1 className="header-title">売り上げ状況</h1>
+                    <div className="header-underline"></div>
+                </header>
 
-            <div className="dashboard-grid">
-                {/* Top Row: Cards */}
-                <div className="stat-card">
-                    <h3>総売上</h3>
-                    <p className="stat-value">¥{totalRevenue.toLocaleString()}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>経費</h3>
-                    <p className="stat-value expense-text">-¥{totalExpenses.toLocaleString()}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>純利益</h3>
-                    <p className="stat-value profit-text">¥{netProfit.toLocaleString()}</p>
-                </div>
+                <div className="main-layout">
+                    {/* Left: Graph Area */}
+                    <div className="chart-section">
+                        <div className="chart-card">
+                            {renderGraph()}
+                        </div>
 
-                {/* Graph Section */}
-                <div className="graph-container">
-                    <h3>販売推移 (緑:ラテ / ピンク:トッピング)</h3>
-                    {renderGraph()}
-                </div>
+                        <div className="financial-summary">
+                            <div className="mini-stat">
+                                <span className="label">売上金額</span>
+                                <span className="value">¥{totalRevenue.toLocaleString()}</span>
+                            </div>
+                            <div className="mini-stat">
+                                <span className="label">経費合計</span>
+                                <span className="value">¥{totalExpenses.toLocaleString()}</span>
+                            </div>
+                            <div className="mini-stat profit">
+                                <span className="label">純利益</span>
+                                <span className="value">¥{netProfit.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
 
-                {/* Item Breakdown Table */}
-                <div className="table-container">
-                    <h3>商品別販売数</h3>
-                    <table className="data-table">
-                        <thead>
-                            <tr><th>商品名</th><th>個数</th><th>小計</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>お茶席</td><td>{itemCounts.tea}</td><td>¥{(itemCounts.tea * 700).toLocaleString()}</td></tr>
-                            <tr><td>紅白饅頭</td><td>{itemCounts.manju}</td><td>¥{(itemCounts.manju * 500).toLocaleString()}</td></tr>
-                            <tr><td>抹茶ラテ</td><td>{itemCounts.latte}</td><td>¥{(itemCounts.latte * 500).toLocaleString()}</td></tr>
-                            <tr><td>ラテ(トッピング)</td><td>{itemCounts.latte_topping}</td><td>¥{(itemCounts.latte_topping * 600).toLocaleString()}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                    {/* Right: Stats Sidebar */}
+                    <aside className="stats-sidebar">
+                        <div className="sidebar-card">
+                            {Object.values(itemStats).map(item => (
+                                <div key={item.name} className="sidebar-item">
+                                    <span className="item-name">{item.name}</span>
+                                    <span className="item-count">
+                                        <span className="number">{item.count}</span>
+                                        <span className="unit">({item.unit})</span>
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
 
-                {/* Expenses Input */}
-                <div className="expenses-container">
-                    <h3>経費入力 (材料費など)</h3>
-                    <form onSubmit={handleAddExpense} className="expense-form">
-                        <input
-                            type="text"
-                            placeholder="項目 (例: 紙コップ代)"
-                            value={newExpense.name}
-                            onChange={e => setNewExpense({ ...newExpense, name: e.target.value })}
-                            className="expense-input"
-                        />
-                        <input
-                            type="number"
-                            placeholder="金額"
-                            value={newExpense.amount}
-                            onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
-                            className="expense-input"
-                        />
-                        <button type="submit" className="expense-btn">追加</button>
-                    </form>
-                    <ul className="expense-list">
-                        {expenses.map(e => (
-                            <li key={e.id}>
-                                {e.name}: ¥{e.amount.toLocaleString()}
-                                <span className="delete-x" onClick={() => handleDeleteExpense(e.id)}>×</span>
-                            </li>
-                        ))}
-                    </ul>
+                        {/* Expense Input Tool in Sidebar */}
+                        <div className="expense-tool">
+                            <h3>経費入力</h3>
+                            <form onSubmit={handleAddExpense} className="expense-form">
+                                <input
+                                    type="text"
+                                    placeholder="項目名"
+                                    value={newExpense.name}
+                                    onChange={e => setNewExpense({ ...newExpense, name: e.target.value })}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="金額"
+                                    value={newExpense.amount}
+                                    onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
+                                />
+                                <button type="submit">追加</button>
+                            </form>
+                            <div className="expense-list-mini">
+                                {expenses.map(e => (
+                                    <div key={e.id} className="expense-item-mini">
+                                        <span>{e.name}: ¥{e.amount}</span>
+                                        <button onClick={() => handleDeleteExpense(e.id)}>×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </div>
