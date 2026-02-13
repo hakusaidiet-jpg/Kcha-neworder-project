@@ -3,10 +3,10 @@ import { useOrders } from '../../hooks/useOrders';
 import './OrderScreen.css';
 
 const PRODUCTS = [
-    { id: 'tea', name: 'お茶席', price: 700, color: '#81c784' },
-    { id: 'manju', name: '紅白饅頭', price: 500, color: '#ff8a80' },
-    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#aed581' }, // Standard
-    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#f06292' }, // Special
+    { id: 'tea', name: 'お茶席', price: 700, color: '#6E6702' },
+    { id: 'manju', name: '紅白饅頭', price: 500, color: '#C05805' },
+    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#2E2300' },
+    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#DE9501' },
 ];
 
 const OrderScreen = () => {
