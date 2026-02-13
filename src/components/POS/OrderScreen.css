@@ -2,14 +2,11 @@
     display: flex;
     height: 100vh;
     padding: 30px;
-    /* Increased padding */
     gap: 30px;
-    /* Increased gap */
     background-color: #fafafa;
     box-sizing: border-box;
 }
 
-/* Products Area */
 .product-grid {
     flex: 1;
     display: grid;
@@ -17,7 +14,6 @@
     grid-template-rows: 1fr 1fr;
     gap: 15px;
     padding: 20px;
-    /* Add padding to shrink buttons visually */
 }
 
 .product-card {
@@ -30,11 +26,8 @@
     transition: transform 0.1s;
     overflow: hidden;
     height: 80%;
-    /* Reduce height to approx 70-80% of cell */
     width: 90%;
-    /* Reduce width slightly */
     margin: auto;
-    /* Center in grid cell */
 }
 
 .product-info-area {
@@ -66,7 +59,6 @@
     opacity: 0.95;
 }
 
-/* New Counter Area */
 .product-counter-area {
     display: flex;
     align-items: center;
@@ -101,13 +93,11 @@
 
 .counter-value {
     font-size: 3.5rem;
-    /* Even larger */
     font-weight: 900;
     min-width: 50px;
     text-align: center;
 }
 
-/* Staff Totals section (Calculation style) */
 .staff-display-box {
     padding: 0;
     margin-bottom: 25px;
@@ -124,7 +114,6 @@
 
 .display-row.staff-total-row {
     border-bottom: 3px solid #333;
-    /* The calculation line */
     padding-bottom: 10px;
     margin-bottom: 5px;
 }
@@ -144,20 +133,16 @@
     font-size: 2.2rem;
     font-weight: 900;
     color: #000;
-    /* Explicit black for visibility */
 }
 
 .display-row.change .value {
     font-size: 4rem;
     color: #d32f2f;
-    /* Red for change */
 }
 
 .customer-display-box {
-    height: 220px;
-    /* Even bigger */
+    height: 180px;
     background: #1a237e;
-    /* Dark Blue */
     color: #fff;
     border-radius: 15px;
     display: flex;
@@ -176,21 +161,17 @@
 .customer-text-upside-down .label {
     font-size: 1.8rem;
     opacity: 0.9;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .customer-text-upside-down .amount {
-    font-size: 5rem;
-    /* Significantly larger */
+    font-size: 4rem;
     font-weight: 900;
     color: #fde047;
-    /* Muted Yellow */
 }
 
-/* Control Panel (Fixed space for keypad) */
 .control-panel {
     width: 360px;
-    /* Guarantee 360px for keypad */
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -199,10 +180,8 @@
     border-radius: 20px;
 }
 
-/* Keypad */
 .keypad-container {
     flex: 0 1 auto;
-    /* Don't force growth */
     display: flex;
     flex-direction: column;
 }
@@ -211,7 +190,6 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 75px);
-    /* Forced fixed height */
     gap: 12px;
     width: 100%;
     margin: 0 auto;
@@ -221,7 +199,7 @@
     border: 2px solid #333;
     background: #fff;
     color: #000;
-    border-radius: 15px;
+    border-radius: 12px;
     font-size: 2.2rem;
     font-weight: bold;
     cursor: pointer;
@@ -229,7 +207,6 @@
     align-items: center;
     justify-content: center;
     height: 75px;
-    /* Fixed height for iPad consistency */
 }
 
 .key-btn:active {
@@ -258,12 +235,10 @@
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(26, 35, 126, 0.3);
     height: 75px;
-    /* Match other keys */
 }
 
 .complete-btn.ready {
     background: #e91e63;
-    /* Pink when ready */
     animation: pulse-glow 2s infinite;
 }
 
@@ -291,21 +266,6 @@
     cursor: not-allowed;
 }
 
-/* Success Screen (Overlay) */
-.reset-btn-large {
-    margin-top: 40px;
-    padding: 20px 80px;
-    font-size: 3rem;
-    font-weight: bold;
-    background: white;
-    color: #4caf50;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Success Screen (Overlay or Replaced) */
 .success-bg {
     background: #81c784;
     color: white;
@@ -314,37 +274,6 @@
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s;
-}
-
-.change-title {
-    font-size: 4rem;
-    margin: 0;
-}
-
-.change-amount {
-    font-size: 8rem;
-    font-weight: bold;
-    margin: 20px 0;
-}
-
-.tap-hint {
-    font-size: 2rem;
-    opacity: 0.8;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.8;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
-
-    100% {
-        opacity: 0.8;
-    }
 }
 
 @keyframes fadeIn {
