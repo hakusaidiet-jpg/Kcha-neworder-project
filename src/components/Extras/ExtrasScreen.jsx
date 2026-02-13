@@ -31,12 +31,14 @@ const ExtrasScreen = () => {
         { date: '2025/11/24', latte: 73, topping: 58, total: (73 * 500) + (58 * 600) },
     ];
 
-    // Aggregate Historical Data (Sales by Date)
-    const historyData = useMemo(() => {
+    // Aggregate Historical Data (Sales by Date and Group by Year)
+    const historyDataByYear = useMemo(() => {
         const groups = {};
         orders.filter(o => o.status === 'completed').forEach(o => {
-            const dateStr = o.createdAt.toLocaleDateString();
-            if (!groups[dateStr]) groups[dateStr] = { latte: 0, topping: 0, total: 0 };
+            const dateStr = o.createdAt.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const yearStr = o.createdAt.getFullYear().toString();
+
+            if (!groups[dateStr]) groups[dateStr] = { date: dateStr, year: yearStr, latte: 0, topping: 0, total: 0 };
 
             o.items.forEach(item => {
                 if (item.id === 'latte') groups[dateStr].latte += item.quantity;
@@ -45,12 +47,25 @@ const ExtrasScreen = () => {
             groups[dateStr].total += (o.totalAmount || 0);
         });
 
-        const currentYearData = Object.entries(groups).map(([date, data]) => ({
-            date,
-            ...data
-        }));
+        // Convert the 2025 hardcoded data to a similar format if not already
+        const formatted2025 = data2025.map(d => ({ ...d, year: '2025' }));
 
-        return [...currentYearData, ...data2025].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const allData = [...Object.values(groups), ...formatted2025];
+
+        // Group by Year
+        const byYear = allData.reduce((acc, current) => {
+            const year = current.year;
+            if (!acc[year]) acc[year] = [];
+            acc[year].push(current);
+            return acc;
+        }, {});
+
+        // Sort dates within years and years descending
+        Object.keys(byYear).forEach(y => {
+            byYear[y].sort((a, b) => new Date(b.date) - new Date(a.date));
+        });
+
+        return Object.entries(byYear).sort((a, b) => b[0] - a[0]); // [[ "2026", [...] ], [ "2025", [...] ]]
     }, [orders]);
 
     const handleSendMemo = (e) => {
@@ -123,26 +138,34 @@ const ExtrasScreen = () => {
                             <button className="close-btn" onClick={() => setShowHistory(false)}>×</button>
                         </div>
                         <div className="history-list">
-                            <table className="history-table">
-                                <thead>
-                                    <tr>
-                                        <th>日付</th>
-                                        <th>ラテ</th>
-                                        <th>トッピング</th>
-                                        <th>売上金額</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {historyData.map((row) => (
-                                        <tr key={row.date}>
-                                            <td>{row.date}</td>
-                                            <td>{row.latte}杯</td>
-                                            <td>{row.topping}杯</td>
-                                            <td className="amount-col">¥{row.total.toLocaleString()}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            {historyDataByYear.map(([year, records]) => (
+                                <div key={year} className="year-section">
+                                    <div className="year-header">
+                                        <span className="year-label">{year}年</span>
+                                        <div className="year-divider"></div>
+                                    </div>
+                                    <table className="history-table">
+                                        <thead>
+                                            <tr>
+                                                <th>日付</th>
+                                                <th>ラテ</th>
+                                                <th>トッピング</th>
+                                                <th>売上金額</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {records.map((row) => (
+                                                <tr key={row.date}>
+                                                    <td className="date-col">{row.date}</td>
+                                                    <td className="count-col">{row.latte}杯</td>
+                                                    <td className="count-col">{row.topping}杯</td>
+                                                    <td className="amount-col">¥{row.total.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
