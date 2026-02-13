@@ -206,7 +206,7 @@ const OrderScreen = () => {
 
                 {/* Version Stamp for Debugging */}
                 <div style={{ fontSize: '0.7rem', color: '#ccc', textAlign: 'right', marginTop: '5px' }}>
-                    v1.1.0 - Active
+                    v2.0.0 - Stability
                 </div>
 
                 {/* Keypad */}
