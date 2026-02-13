@@ -72,64 +72,52 @@ const OrderScreen = () => {
     };
 
     const handleCheckout = async () => {
-        console.log("--- handleCheckout Clicked ---");
-        if (isProcessing) {
-            console.warn("Checkout already in progress, ignore click");
-            return;
-        }
+        if (isProcessing) return;
         if (totalAmount === 0) {
-            console.warn("Checkout stopped: Total is 0");
             alert('商品を選択してください');
             return;
         }
 
         const received = parseInt(receivedAmount, 10);
-        console.log("Checkout Data:", { cart, totalAmount, received });
-
         if (!received || received < totalAmount) {
-            console.warn("Insufficient funds or invalid input. Received:", received, "Total:", totalAmount);
             alert('金額が不足しています。預かり金額を入力してください。');
             return;
         }
 
         setIsProcessing(true);
-        console.log("isProcessing set to true. Sending to Firebase...");
-
         try {
             const items = Object.entries(cart).map(([id, count]) => {
                 const product = PRODUCTS.find(p => p.id === id);
                 return { ...product, quantity: count };
             });
 
-            // addOrder handles Firestore interaction (persistence enabled)
-            const success = await addOrder(items, totalAmount, received);
-            console.log("addOrder outcome:", success);
+            // Race: Firestore local acknowledge vs 2s timeout
+            const result = await Promise.race([
+                addOrder(items, totalAmount, received),
+                new Promise(resolve => setTimeout(() => resolve('timeout'), 2000))
+            ]);
 
-            if (success) {
-                // Play Audio
-                try {
-                    console.log("Attempting audio playback...");
-                    const base = import.meta.env.BASE_URL || '/';
-                    const audioPath = (base.endsWith('/') ? base : base + '/') + 'checkout.mp3';
-                    const audio = new Audio(audioPath);
-                    audio.play().then(() => console.log("Audio OK"))
-                        .catch(e => console.warn("Audio blocked/error:", e));
-                } catch (e) {
-                    console.error("Audio system error:", e);
-                }
+            // Feedbacks (Audio)
+            try {
+                const base = import.meta.env.BASE_URL || '/';
+                const audioPath = (base.endsWith('/') ? base : base + '/') + 'checkout.mp3';
+                const audio = new Audio(audioPath);
+                audio.play().catch(() => { });
+            } catch (e) { }
 
-                console.log("Performing reset...");
-                setCart({});
-                setReceivedAmount('');
-            } else {
-                console.error("addOrder returned false");
-                alert('注文の送信に失敗しました。');
+            // Immediate Reset
+            setCart({});
+            setReceivedAmount('');
+
+            if (result === 'timeout') {
+                console.warn("Firestore local resolve timed out. Resetting anyway for speed.");
+            } else if (!result) {
+                alert('送信に失敗した可能性があります。Wi-Fiを確認してください。');
             }
         } catch (error) {
-            console.error("CRITICAL CHECKOUT ERROR:", error);
-            alert('予期せぬエラーが発生しました。');
+            console.error("CRITICAL Checkout Error:", error);
+            alert('システムエラーが発生しました。');
         } finally {
-            console.log("Checkout cleanup. isProcessing -> false");
             setIsProcessing(false);
         }
     };
