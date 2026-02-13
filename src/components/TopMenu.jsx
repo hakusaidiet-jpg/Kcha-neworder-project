@@ -18,7 +18,7 @@ const TopMenu = () => {
         <button
           key={index}
           onClick={() => navigate(item.path)}
-          className={`menu - item ${item.className} `}
+          className={`menu-item ${item.className}`}
         >
           {item.title}
         </button>

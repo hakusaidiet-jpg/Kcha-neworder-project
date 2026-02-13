@@ -62,6 +62,10 @@ const KitchenDisplay = () => {
 
     return (
         <div className="kitchen-banner-container">
+            <div style={{ position: 'fixed', top: '10px', right: '10px', fontSize: '0.8rem', color: '#4caf50', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ width: '8px', height: '8px', backgroundColor: '#4caf50', borderRadius: '50%', display: 'inline-block' }}></span>
+                Live Sync Active
+            </div>
             <h1 className="kitchen-banner-title">抹茶ラテ 注文状況 ({latteBanners.length}件)</h1>
 
             <div className="banners-list">

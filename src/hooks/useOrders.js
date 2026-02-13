@@ -20,7 +20,9 @@ export const useOrders = () => {
             orderBy('createdAt', 'asc')
         );
 
+        console.log("Initializing Firestore Snapshot Listener for 'orders'...");
         const unsubscribe = onSnapshot(q, (snapshot) => {
+            console.log("Firestore Snapshot received! Doc count:", snapshot.docs.length);
             const ordersData = snapshot.docs.map(doc => {
                 const data = doc.data({ serverTimestamps: 'estimate' });
                 return {
@@ -32,7 +34,7 @@ export const useOrders = () => {
             setOrders(ordersData);
             setLoading(false);
         }, (error) => {
-            console.error("Error fetching orders:", error);
+            console.error("CRITICAL: Firestore Snapshot Error:", error);
             setLoading(false);
         });
 
