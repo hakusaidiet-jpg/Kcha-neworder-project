@@ -5,6 +5,7 @@ import TopMenu from './components/TopMenu';
 import OrderScreen from './components/POS/OrderScreen';
 import KitchenDisplay from './components/Kitchen/KitchenDisplay';
 import SalesDashboard from './components/Dashboard/SalesDashboard';
+import ExtrasScreen from './components/Extras/ExtrasScreen';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="order" element={<OrderScreen />} />
           <Route path="kitchen" element={<KitchenDisplay />} />
           <Route path="dashboard" element={<SalesDashboard />} />
+          <Route path="extras" element={<ExtrasScreen />} />
         </Route>
       </Routes>
     </HashRouter>

@@ -1,0 +1,241 @@
+.extras-container {
+    padding: 60px 40px;
+    background-color: #FFC1C1;
+    /* Soft pink background from sketch */
+    min-height: 100vh;
+    font-family: "M PLUS Rounded 1c", sans-serif;
+}
+
+.extras-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: white;
+    border-radius: 40px;
+    padding: 40px;
+    min-height: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Sales Panel */
+.sales-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.panel-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.sales-title {
+    color: #FF5252;
+}
+
+.date-display {
+    margin-bottom: 40px;
+}
+
+.date-display .year {
+    font-size: 3rem;
+    display: block;
+}
+
+.date-display .month-day {
+    font-size: 3.5rem;
+    font-weight: 900;
+}
+
+.amount-display {
+    margin-top: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.amount-display .currency {
+    font-size: 2.5rem;
+    font-weight: 900;
+}
+
+.amount-display .amount {
+    font-size: 4rem;
+    font-weight: 900;
+}
+
+.dash-line {
+    width: 100%;
+    border-bottom: 2px dashed #333;
+    margin-top: 20px;
+}
+
+/* Memo Panel */
+.memo-panel {
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Speech Bubble Tail for Memo Panel */
+.memo-panel::after {
+    content: "";
+    position: absolute;
+    bottom: -40px;
+    left: 60px;
+    border-width: 25px;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+}
+
+.memo-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 10px;
+}
+
+.memo-item {
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.memo-time {
+    font-size: 0.9rem;
+    color: #999;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+.memo-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.4;
+}
+
+.memo-input-form {
+    display: flex;
+    gap: 10px;
+}
+
+.memo-input-form input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid #eee;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.memo-input-form button {
+    background: #FF5252;
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 20px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+/* Past Data Button */
+.past-data-btn {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background-color: #FF5252;
+    /* Bright red from sketch */
+    color: white;
+    border: none;
+    font-size: 2.2rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(255, 82, 82, 0.4);
+    transition: transform 0.2s;
+    line-height: 1.2;
+}
+
+.past-data-btn:hover {
+    transform: scale(1.05);
+}
+
+/* History Overlay */
+.history-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.history-modal {
+    background: white;
+    width: 600px;
+    max-height: 80vh;
+    border-radius: 30px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 3rem;
+    cursor: pointer;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 1.4rem;
+}
+
+.history-table th {
+    font-weight: 800;
+    color: #666;
+}
