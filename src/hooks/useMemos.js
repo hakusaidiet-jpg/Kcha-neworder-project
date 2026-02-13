@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, limit } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, limit, where } from 'firebase/firestore';
 
 export const useMemos = () => {
     const [memos, setMemos] = useState([]);
@@ -9,10 +9,14 @@ export const useMemos = () => {
     useEffect(() => {
         if (!db) return;
 
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
         const q = query(
             collection(db, 'memos'),
+            where('createdAt', '>=', sixMonthsAgo),
             orderBy('createdAt', 'desc'),
-            limit(50)
+            limit(100)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {

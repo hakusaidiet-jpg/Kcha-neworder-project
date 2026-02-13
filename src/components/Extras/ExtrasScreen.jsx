@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import { useMemos } from '../../hooks/useMemos';
 import './ExtrasScreen.css';
@@ -8,6 +8,24 @@ const ExtrasScreen = () => {
     const { memos, addMemo } = useMemos();
     const [memoText, setMemoText] = useState('');
     const [showHistory, setShowHistory] = useState(false);
+    const scrollRef = useRef(null);
+
+    // Auto-scroll to bottom of memos
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [memos]);
+
+    // Format timestamp: YY,MM,DD,HH:mm (Line style + year/date/time)
+    const formatMemoTime = (date) => {
+        const yy = String(date.getFullYear()).slice(-2);
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `${yy},${mm},${dd},${hh}:${min}`;
+    };
 
     const today = new Date();
     const year = today.getFullYear();
@@ -99,10 +117,10 @@ const ExtrasScreen = () => {
                 {/* 2. Today's Memo Panel */}
                 <div className="panel memo-panel">
                     <h2 className="panel-title">今日のメモ</h2>
-                    <div className="memo-list">
+                    <div className="memo-list" ref={scrollRef}>
                         {memos.map(m => (
                             <div key={m.id} className="memo-item">
-                                <span className="memo-time">{m.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span className="memo-time">{formatMemoTime(m.createdAt)}</span>
                                 <span className="memo-text">{m.text}</span>
                             </div>
                         ))}
