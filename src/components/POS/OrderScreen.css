@@ -210,8 +210,8 @@
 .keypad {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, minmax(70px, 1fr));
-    /* Limit minimum height */
+    grid-template-rows: repeat(4, 75px);
+    /* Forced fixed height */
     gap: 12px;
     width: 100%;
     margin: 0 auto;
@@ -259,6 +259,29 @@
     box-shadow: 0 4px 10px rgba(26, 35, 126, 0.3);
     height: 75px;
     /* Match other keys */
+}
+
+.complete-btn.ready {
+    background: #e91e63;
+    /* Pink when ready */
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(233, 30, 99, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(233, 30, 99, 0);
+    }
+}
+
+/* Match other keys */
 }
 
 .complete-btn.ready {
