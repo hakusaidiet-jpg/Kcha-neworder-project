@@ -23,14 +23,34 @@ const ExtrasScreen = () => {
             .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     }, [orders]);
 
+    // Hardcoded 2025 Data
+    const data2025 = [
+        { date: '2025/11/21', latte: 47, topping: 31, total: (47 * 500) + (31 * 600) },
+        { date: '2025/11/22', latte: 134, topping: 31, total: (134 * 500) + (31 * 600) },
+        { date: '2025/11/23', latte: 131, topping: 50, total: (131 * 500) + (50 * 600) },
+        { date: '2025/11/24', latte: 73, topping: 58, total: (73 * 500) + (58 * 600) },
+    ];
+
     // Aggregate Historical Data (Sales by Date)
     const historyData = useMemo(() => {
         const groups = {};
         orders.filter(o => o.status === 'completed').forEach(o => {
             const dateStr = o.createdAt.toLocaleDateString();
-            groups[dateStr] = (groups[dateStr] || 0) + (o.totalAmount || 0);
+            if (!groups[dateStr]) groups[dateStr] = { latte: 0, topping: 0, total: 0 };
+
+            o.items.forEach(item => {
+                if (item.id === 'latte') groups[dateStr].latte += item.quantity;
+                if (item.id === 'latte_topping') groups[dateStr].topping += item.quantity;
+            });
+            groups[dateStr].total += (o.totalAmount || 0);
         });
-        return Object.entries(groups).sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+        const currentYearData = Object.entries(groups).map(([date, data]) => ({
+            date,
+            ...data
+        }));
+
+        return [...currentYearData, ...data2025].sort((a, b) => new Date(b.date) - new Date(a.date));
     }, [orders]);
 
     const handleSendMemo = (e) => {
@@ -107,14 +127,18 @@ const ExtrasScreen = () => {
                                 <thead>
                                     <tr>
                                         <th>日付</th>
+                                        <th>ラテ</th>
+                                        <th>トッピング</th>
                                         <th>売上金額</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {historyData.map(([date, amount]) => (
-                                        <tr key={date}>
-                                            <td>{date}</td>
-                                            <td>¥{amount.toLocaleString()}</td>
+                                    {historyData.map((row) => (
+                                        <tr key={row.date}>
+                                            <td>{row.date}</td>
+                                            <td>{row.latte}杯</td>
+                                            <td>{row.topping}杯</td>
+                                            <td className="amount-col">¥{row.total.toLocaleString()}</td>
                                         </tr>
                                     ))}
                                 </tbody>
