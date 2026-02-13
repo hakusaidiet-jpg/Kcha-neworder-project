@@ -22,29 +22,40 @@ const OrderScreen = () => {
     }, 0);
 
     const handleProductClick = (id) => {
+        console.log("Product clicked:", id);
         setCart(prev => {
             const currentCount = prev[id] || 0;
-            if (currentCount >= 10) return prev; // Limit to 10
-            return {
+            if (currentCount >= 10) {
+                console.warn("Item limit reached for:", id);
+                return prev;
+            }
+            const next = {
                 ...prev,
                 [id]: currentCount + 1
             };
+            console.log("New Cart State:", next);
+            return next;
         });
     };
 
     const handleDecrement = (id, e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
+        console.log("Decrement clicked:", id);
         setCart(prev => {
             const newCount = (prev[id] || 0) - 1;
             if (newCount <= 0) {
                 const { [id]: _, ...rest } = prev;
+                console.log("Item removed from cart:", id);
                 return rest;
             }
-            return { ...prev, [id]: newCount };
+            const next = { ...prev, [id]: newCount };
+            console.log("Updated Cart State (minus):", next);
+            return next;
         });
     };
 
     const handleNumPad = (value) => {
+        console.log("NumPad clicked:", value);
         if (value === 'AC') {
             setReceivedAmount('');
             return;
@@ -61,57 +72,64 @@ const OrderScreen = () => {
     };
 
     const handleCheckout = async () => {
-        if (isProcessing) return;
+        console.log("--- handleCheckout Clicked ---");
+        if (isProcessing) {
+            console.warn("Checkout already in progress, ignore click");
+            return;
+        }
+        if (totalAmount === 0) {
+            console.warn("Checkout stopped: Total is 0");
+            alert('商品を選択してください');
+            return;
+        }
+
         const received = parseInt(receivedAmount, 10);
-        console.log("--- Checkout Started ---");
-        console.log("Cart:", cart);
-        console.log("Total:", totalAmount, "Received:", received);
+        console.log("Checkout Data:", { cart, totalAmount, received });
 
         if (!received || received < totalAmount) {
-            console.warn("Insufficient funds or invalid input");
-            alert('金額が不足しています');
+            console.warn("Insufficient funds or invalid input. Received:", received, "Total:", totalAmount);
+            alert('金額が不足しています。預かり金額を入力してください。');
             return;
         }
 
         setIsProcessing(true);
+        console.log("isProcessing set to true. Sending to Firebase...");
+
         try {
             const items = Object.entries(cart).map(([id, count]) => {
                 const product = PRODUCTS.find(p => p.id === id);
                 return { ...product, quantity: count };
             });
 
-            console.log("Preparing to write to Firebase...");
-            // addOrder handles Firestore interaction (Now works with persistence)
+            // addOrder handles Firestore interaction (persistence enabled)
             const success = await addOrder(items, totalAmount, received);
-            console.log("Firebase Write Result:", success);
+            console.log("addOrder outcome:", success);
 
             if (success) {
                 // Play Audio
                 try {
-                    console.log("Attempting to play audio...");
+                    console.log("Attempting audio playback...");
                     const base = import.meta.env.BASE_URL || '/';
                     const audioPath = (base.endsWith('/') ? base : base + '/') + 'checkout.mp3';
                     const audio = new Audio(audioPath);
-                    audio.play().then(() => console.log("Audio played successfully"))
-                        .catch(e => console.warn("Audio playback issue (often blocked by browser):", e));
+                    audio.play().then(() => console.log("Audio OK"))
+                        .catch(e => console.warn("Audio blocked/error:", e));
                 } catch (e) {
                     console.error("Audio system error:", e);
                 }
 
-                // IMMEDIATE RESET
-                console.log("Resetting cart and inputs...");
+                console.log("Performing reset...");
                 setCart({});
                 setReceivedAmount('');
             } else {
-                console.error("Firebase write returned failure (success is false/undefined)");
-                alert('送信に失敗しました。Firebaseの設定（API Key等）またはネット環境を確認してください。');
+                console.error("addOrder returned false");
+                alert('注文の送信に失敗しました。');
             }
         } catch (error) {
-            console.error("CRITICAL Checkout Error:", error);
-            alert('システムエラーが発生しました。詳細はコンソールを確認してください。');
+            console.error("CRITICAL CHECKOUT ERROR:", error);
+            alert('予期せぬエラーが発生しました。');
         } finally {
-            console.log("--- Checkout Finished ---");
-            // ALWAYS re-enable the button
+            console.log("Checkout cleanup. isProcessing -> false");
             setIsProcessing(false);
         }
     };
@@ -186,6 +204,11 @@ const OrderScreen = () => {
                     </div>
                 </div>
 
+                {/* Version Stamp for Debugging */}
+                <div style={{ fontSize: '0.7rem', color: '#ccc', textAlign: 'right', marginTop: '5px' }}>
+                    v1.0.5 - Ready
+                </div>
+
                 {/* Keypad */}
                 <div className="keypad-container">
                     <div className="keypad">
@@ -198,8 +221,12 @@ const OrderScreen = () => {
                                 {key === 'back' ? '⌫' : key}
                             </button>
                         ))}
-                        <button className="complete-btn" onClick={handleCheckout} disabled={isProcessing || totalAmount === 0}>
-                            完了
+                        <button
+                            className={`complete-btn ${(!isProcessing && totalAmount > 0) ? 'ready' : ''}`}
+                            onClick={handleCheckout}
+                            disabled={isProcessing || totalAmount === 0}
+                        >
+                            {isProcessing ? '送信中...' : '完了'}
                         </button>
                     </div>
                 </div>
