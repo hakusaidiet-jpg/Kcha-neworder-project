@@ -36,6 +36,7 @@
     grid-template-columns: 1fr 350px;
     /* Graph left, Sidebar right */
     gap: 30px;
+    align-items: start;
 }
 
 /* Graph Section */
@@ -47,7 +48,7 @@
 
 .chart-card {
     background: white;
-    padding: 30px;
+    padding: 40px;
     border-radius: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
@@ -55,37 +56,6 @@
 .premium-graph {
     width: 100%;
     height: auto;
-}
-
-.financial-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.mini-stat {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-}
-
-.mini-stat .label {
-    display: block;
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.mini-stat .value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #333;
-}
-
-.mini-stat.profit .value {
-    color: #2E7D32;
 }
 
 /* Sidebar Stats */
@@ -112,7 +82,7 @@
 }
 
 .item-name {
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 800;
     color: #333;
 }
@@ -120,80 +90,17 @@
 .item-count {
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: 15px;
 }
 
 .item-count .number {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 900;
     color: #000;
 }
 
 .item-count .unit {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: #666;
     font-weight: 800;
-}
-
-/* Expense Tool */
-.expense-tool {
-    background: white;
-    padding: 25px;
-    border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
-
-.expense-tool h3 {
-    margin-top: 0;
-    font-size: 1.4rem;
-    color: #333;
-}
-
-.expense-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.expense-form input {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    font-size: 1rem;
-}
-
-.expense-form button {
-    background: #4DB6AC;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.expense-list-mini {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.expense-item-mini {
-    display: flex;
-    justify-content: space-between;
-    background: #f5f5f5;
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-}
-
-.expense-item-mini button {
-    background: none;
-    border: none;
-    color: #f44336;
-    font-weight: bold;
-    cursor: pointer;
 }
