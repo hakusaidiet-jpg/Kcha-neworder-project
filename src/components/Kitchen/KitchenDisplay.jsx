@@ -45,6 +45,16 @@ const KitchenDisplay = () => {
     };
 
     const handleComplete = (orderId) => {
+        // Play success audio
+        try {
+            const base = import.meta.env.BASE_URL || '/';
+            const audioPath = (base.endsWith('/') ? base : base + '/') + 'complete.mp3';
+            const audio = new Audio(audioPath);
+            audio.play().catch(e => console.warn("Audio play blocked/failed:", e));
+        } catch (e) {
+            console.error("Audio system error:", e);
+        }
+
         // In this version, completing a latte banner completes the whole order for simplicity.
         // If there are other items in the order, they will also be cleared.
         updateOrderStatus(orderId, 'completed');
