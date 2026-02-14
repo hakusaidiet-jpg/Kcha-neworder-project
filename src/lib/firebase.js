@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
@@ -11,13 +15,15 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
 
-console.log("Firebase initialized with project:", firebaseConfig.projectId);
+// Initialize Firestore with Multi-Tab Persistence
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
+console.log("Firebase initialized for project:", firebaseConfig.projectId);
 if (firebaseConfig.apiKey === "YOUR_API_KEY") {
   console.error("CRITICAL: Firebase API Key is not set! Please check your .env file.");
 }
-
-enableIndexedDbPersistence(db).catch((err) => {
-  console.warn("Firestore persistence failed", err.code);
-});

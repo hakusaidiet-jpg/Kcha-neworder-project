@@ -10,7 +10,7 @@ const PRODUCTS = [
 ];
 
 const OrderScreen = () => {
-    const { addOrder } = useOrders();
+    const { addOrder, isConnected } = useOrders();
     const [cart, setCart] = useState({}); // { productId: count }
     const [receivedAmount, setReceivedAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -192,9 +192,15 @@ const OrderScreen = () => {
                     </div>
                 </div>
 
-                {/* Version Stamp for Debugging */}
-                <div style={{ fontSize: '0.7rem', color: '#ccc', textAlign: 'right', marginTop: '5px' }}>
-                    v2.0.0 - Stability
+                {/* Version Stamp & Sync Status */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '5px' }}>
+                    <div style={{ fontSize: '0.7rem', color: isConnected ? '#4caf50' : '#f44336', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <span style={{ width: '6px', height: '6px', backgroundColor: isConnected ? '#4caf50' : '#f44336', borderRadius: '50%', display: 'inline-block' }}></span>
+                        {isConnected ? '同期中' : 'オフライン'}
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#ff6600', fontWeight: 'bold' }}>
+                        NEW v3.0.0 (決済)
+                    </div>
                 </div>
 
                 {/* Keypad */}
@@ -211,10 +217,11 @@ const OrderScreen = () => {
                         ))}
                         <button
                             className={`complete-btn ${(!isProcessing && totalAmount > 0) ? 'ready' : ''}`}
+                            style={{ backgroundColor: '#2E2300', color: '#fff' }}
                             onClick={handleCheckout}
                             disabled={isProcessing || totalAmount === 0}
                         >
-                            {isProcessing ? '送信中...' : '完了'}
+                            {isProcessing ? '送信中...' : '決済'}
                         </button>
                     </div>
                 </div>

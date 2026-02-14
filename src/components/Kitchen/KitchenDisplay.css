@@ -1,41 +1,43 @@
 .kitchen-banner-container {
     padding: 20px;
-    background-color: #f0f0f0;
-    /* Light background for high visibility */
+    background-color: #f1f5f9;
     min-height: 100vh;
     font-family: 'Inter', system-ui, sans-serif;
 }
 
 .kitchen-banner-title {
     margin: 0 0 20px 0;
-    font-size: 2.5rem;
-    color: #333;
+    font-size: 2.2rem;
+    color: #0f172a;
     font-weight: 800;
-    border-bottom: 3px solid #333;
+    border-bottom: 3px solid #334155;
     padding-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .banners-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .kitchen-banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    color: #000;
-    /* Black text as requested */
+    padding: 15px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-left: 15px solid #64748b;
     animation: bannerPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
 @keyframes bannerPop {
     from {
-        transform: scale(0.95);
+        transform: scale(0.98);
         opacity: 0;
     }
 
@@ -45,49 +47,60 @@
     }
 }
 
-/* Banner Colors */
-.banner-normal {
-    background-color: #e8f5e9;
-    /* Gentle Green */
-    border-left: 15px solid #81c784;
+.banner-latte {
+    border-left-color: #2E2300;
+    background-color: #f8fafc;
 }
 
-.banner-topping {
-    background-color: #fce4ec;
-    /* Gentle Pink */
-    border-left: 15px solid #f06292;
+.banner-latte_topping {
+    border-left-color: #DE9501;
+    background-color: #fffbeb;
 }
 
 .banner-left {
     display: flex;
-    align-items: center;
-    gap: 30px;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.product-info {
-    font-size: 2.5rem;
+.order-metadata {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.product-info-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.product-name {
+    font-size: 2rem;
     font-weight: 800;
+    color: #1e293b;
 }
 
 .product-qty {
-    font-size: 2rem;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 5px 15px;
-    border-radius: 10px;
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: #f1f5f9;
+    padding: 2px 12px;
+    border-radius: 8px;
 }
 
 .banner-right {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 30px;
 }
 
 .complete-btn-kitchen {
-    background: #fff;
-    color: #333;
-    border: 2px solid #333;
-    padding: 10px 40px;
-    font-size: 2rem;
+    background: white;
+    color: #0f172a;
+    border: 3px solid #0f172a;
+    padding: 10px 30px;
+    font-size: 1.8rem;
     font-weight: 800;
     border-radius: 10px;
     cursor: pointer;
@@ -95,42 +108,34 @@
 }
 
 .complete-btn-kitchen:active {
-    background: #333;
-    color: #fff;
+    background: #0f172a;
+    color: white;
     transform: scale(0.95);
 }
 
 .time-counter {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     font-weight: 900;
     font-family: monospace;
-    min-width: 120px;
+    min-width: 100px;
     text-align: right;
 }
 
-/* Timer Warnings */
 .normal-time {
-    color: #333;
+    color: #1e293b;
 }
 
 .warning-time {
-    color: #d97706;
+    color: #f59e0b;
 }
 
-/* Orange after 3 mins */
 .urgent-time {
-    color: #dc2626;
+    color: #ef4444;
 }
-
-/* Red after 5 mins */
 
 .no-banners {
     text-align: center;
     padding: 100px 0;
-    color: #999;
-}
-
-.no-banners .sub-text {
-    font-size: 1.2rem;
-    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 1.5rem;
 }

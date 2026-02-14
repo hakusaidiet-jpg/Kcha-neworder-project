@@ -10,9 +10,8 @@ const SalesDashboard = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         return orders.filter(o => {
-            const isCompleted = o.status === 'completed';
             const orderDate = o.createdAt;
-            return isCompleted && orderDate >= today;
+            return orderDate >= today;
         });
     }, [orders]);
 

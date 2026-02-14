@@ -3,10 +3,9 @@ import { useOrders } from '../../hooks/useOrders';
 import './KitchenDisplay.css';
 
 const KitchenDisplay = () => {
-    const { orders, updateOrderStatus } = useOrders();
+    const { orders, isConnected, updateItemStatus } = useOrders();
     const [now, setNow] = useState(new Date());
 
-    // Update timer every second for real-time lag-free feel
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(timer);
@@ -15,15 +14,16 @@ const KitchenDisplay = () => {
     // Filter only pending orders
     const activeOrders = orders.filter(o => o.status === 'pending');
 
-    // Flatten orders into individual "latte banners"
+    // Flatten all pending drink items into individual banners
     const latteBanners = activeOrders.flatMap(order => {
         return order.items
-            .filter(item => item.id === 'latte' || item.id === 'latte_topping')
-            .map((item, index) => ({
+            .map((item, index) => ({ ...item, originalIndex: index }))
+            .filter(item => (item.id === 'latte' || item.id === 'latte_topping') && !item.completed)
+            .map(item => ({
                 ...item,
                 orderId: order.id,
                 createdAt: order.createdAt,
-                uniqueKey: `${order.id}-${index}`
+                uniqueKey: `${order.id}-${item.originalIndex}`
             }));
     });
 
@@ -39,63 +39,84 @@ const KitchenDisplay = () => {
     };
 
     const getTimeColorClass = (seconds) => {
-        if (seconds >= 300) return 'urgent-time';   // 5+ mins
-        if (seconds >= 180) return 'warning-time';  // 3+ mins
+        if (seconds >= 300) return 'urgent-time';
+        if (seconds >= 180) return 'warning-time';
         return 'normal-time';
     };
 
-    const handleComplete = (orderId) => {
+    const handleCompleteItem = (orderId, itemIndex) => {
         // Play success audio
         try {
             const base = import.meta.env.BASE_URL || '/';
             const audioPath = (base.endsWith('/') ? base : base + '/') + 'complete.mp3';
             const audio = new Audio(audioPath);
-            audio.play().catch(e => console.warn("Audio play blocked/failed:", e));
-        } catch (e) {
-            console.error("Audio system error:", e);
-        }
+            audio.play().catch(() => { });
+        } catch (e) { }
 
-        // In this version, completing a latte banner completes the whole order for simplicity.
-        // If there are other items in the order, they will also be cleared.
-        updateOrderStatus(orderId, 'completed');
+        // Mark individual item as completed (it will disappear due to the filter above)
+        updateItemStatus(orderId, itemIndex, true);
     };
-
-    const totalCups = latteBanners.reduce((sum, b) => sum + (b.quantity || 0), 0);
 
     return (
         <div className="kitchen-banner-container">
-            <div style={{ position: 'fixed', top: '10px', right: '10px', fontSize: '0.8rem', color: '#4caf50', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ width: '8px', height: '8px', backgroundColor: '#4caf50', borderRadius: '50%', display: 'inline-block' }}></span>
-                Live Sync Active
+            <div style={{
+                position: 'fixed',
+                top: '10px',
+                right: '10px',
+                fontSize: '0.8rem',
+                color: isConnected ? '#4caf50' : '#f44336',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                padding: '4px 8px',
+                borderRadius: '20px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                zIndex: 1000
+            }}>
+                <span style={{
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: isConnected ? '#4caf50' : '#f44336',
+                    borderRadius: '50%',
+                    display: 'inline-block'
+                }}></span>
+                {isConnected ? 'ライブ同期中' : 'オフライン (再接続待ち...)'}
             </div>
-            <h1 className="kitchen-banner-title">抹茶ラテ 注文状況 ({totalCups}杯)</h1>
+
+            <div className="kitchen-banner-title">
+                <span>調理場：注文状況</span>
+                <span style={{ fontSize: '1.5rem', color: '#64748b' }}>残りの飲み物: {latteBanners.length}杯</span>
+            </div>
 
             <div className="banners-list">
                 {latteBanners.length === 0 && (
                     <div className="no-banners">
                         注文待ち...
-                        <div className="sub-text">抹茶ラテの注文が入るとここに表示されます</div>
                     </div>
                 )}
 
                 {latteBanners.map(banner => {
                     const elapsed = getElapsedTimeSeconds(banner.createdAt);
-                    const isTopping = banner.id === 'latte_topping';
+                    const orderNum = banner.orderNum || banner.orderId.slice(-4).toUpperCase();
+                    const orderTime = banner.createdAt?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                     return (
-                        <div
-                            key={banner.uniqueKey}
-                            className={`kitchen-banner ${isTopping ? 'banner-topping' : 'banner-normal'}`}
-                        >
+                        <div key={banner.uniqueKey} className={`kitchen-banner banner-${banner.id}`}>
                             <div className="banner-left">
-                                <span className="product-info">{banner.name}</span>
-                                <span className="product-qty">✖️ {banner.quantity}</span>
+                                <div className="order-metadata" style={{ backgroundColor: '#ffed4a', padding: '2px 8px', borderRadius: '4px', color: '#000', fontSize: '1.2rem' }}>
+                                    No. {orderNum} | {orderTime}
+                                </div>
+                                <div className="product-info-row">
+                                    <span className="product-name">{banner.name}</span>
+                                    <span className="product-qty">x{banner.quantity}</span>
+                                </div>
                             </div>
 
                             <div className="banner-right">
                                 <button
                                     className="complete-btn-kitchen"
-                                    onClick={() => handleComplete(banner.orderId)}
+                                    onClick={() => handleCompleteItem(banner.orderId, banner.originalIndex)}
                                 >
                                     完了
                                 </button>

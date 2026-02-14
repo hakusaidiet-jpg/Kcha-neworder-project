@@ -5,6 +5,7 @@ import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, serverT
 export const useOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isConnected, setIsConnected] = useState(false);
 
     // Subscribe to active orders (pending or cooking)
     useEffect(() => {
@@ -21,8 +22,14 @@ export const useOrders = () => {
         );
 
         console.log("Initializing Firestore Snapshot Listener for 'orders'...");
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            console.log("Firestore Snapshot received! Doc count:", snapshot.docs.length);
+
+        // Listen with metadata changes to detect connection status
+        const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+            // If the snapshot has pending writes or is from cache, it might not be synced yet
+            // But if it's NOT from cache (fromServer), we are definitely connected.
+            const fromCache = snapshot.metadata.fromCache;
+            setIsConnected(!fromCache);
+
             const ordersData = snapshot.docs.map(doc => {
                 const data = doc.data({ serverTimestamps: 'estimate' });
                 return {
@@ -35,6 +42,7 @@ export const useOrders = () => {
             setLoading(false);
         }, (error) => {
             console.error("CRITICAL: Firestore Snapshot Error:", error);
+            setIsConnected(false);
             setLoading(false);
         });
 
@@ -46,20 +54,20 @@ export const useOrders = () => {
             console.error("addOrder failed: Firestore 'db' is not initialized.");
             return false;
         }
-        console.log("addOrder calling Firestore with:", { items, totalAmount, receivedAmount });
         try {
+            const orderNum = Math.floor(Math.random() * 25) + 1;
             const docRef = await addDoc(collection(db, 'orders'), {
                 items,
                 totalAmount,
                 receivedAmount,
                 change: receivedAmount - totalAmount,
                 status: 'pending',
+                orderNum,
                 createdAt: serverTimestamp(),
             });
-            console.log("addOrder SUCCESS. Doc ID:", docRef.id);
             return true;
         } catch (error) {
-            console.error("addOrder ERROR in Firestore write:", error);
+            console.error("addOrder ERROR:", error);
             return false;
         }
     };
@@ -77,5 +85,23 @@ export const useOrders = () => {
         }
     };
 
-    return { orders, loading, addOrder, updateOrderStatus };
+    const updateItemStatus = async (orderId, itemIndex, isCompleted) => {
+        if (!db) return;
+        try {
+            const orderRef = doc(db, 'orders', orderId);
+
+            // Get current order data to update items array
+            const snapshot = orders.find(o => o.id === orderId);
+            if (!snapshot) return;
+
+            const newItems = [...snapshot.items];
+            newItems[itemIndex] = { ...newItems[itemIndex], completed: isCompleted };
+
+            await updateDoc(orderRef, { items: newItems });
+        } catch (error) {
+            console.error("Error updating item status:", error);
+        }
+    };
+
+    return { orders, loading, isConnected, addOrder, updateOrderStatus, updateItemStatus };
 };
