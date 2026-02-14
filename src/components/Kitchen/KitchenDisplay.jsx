@@ -86,7 +86,9 @@ const KitchenDisplay = () => {
 
             <div className="kitchen-banner-title">
                 <span>調理場：注文状況</span>
-                <span style={{ fontSize: '1.5rem', color: '#64748b' }}>残りの飲み物: {latteBanners.length}杯</span>
+                <span style={{ fontSize: '1.5rem', color: '#334155', fontWeight: 'bold' }}>
+                    受付中: <span style={{ fontSize: '3rem', color: '#ef4444', marginLeft: '10px' }}>{latteBanners.length}杯</span>
+                </span>
             </div>
 
             <div className="banners-list">
