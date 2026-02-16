@@ -18,7 +18,7 @@ const KitchenDisplay = () => {
     const latteBanners = activeOrders.flatMap(order => {
         return order.items
             .map((item, index) => ({ ...item, originalIndex: index }))
-            .filter(item => (item.id === 'latte' || item.id === 'latte_topping' || item.id === 'custom') && !item.completed)
+            .filter(item => (item.id === 'latte' || item.id === 'latte_topping') && !item.completed)
             .map(item => ({
                 ...item,
                 orderId: order.id,

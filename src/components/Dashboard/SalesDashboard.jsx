@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import './SalesDashboard.css';
 
 const SalesDashboard = () => {
     const { orders } = useOrders();
+    const [selectedPoint, setSelectedPoint] = useState(null); // { hour, type, count }
 
     // Filter completed orders for TODAY only
     const completedOrders = useMemo(() => {
@@ -33,6 +34,23 @@ const SalesDashboard = () => {
         return stats;
     }, [completedOrders]);
 
+    // Custom Item Breakdown Logic
+    const customStats = useMemo(() => {
+        const breakdown = {}; // { price: count }
+        completedOrders.forEach(o => {
+            o.items.forEach(item => {
+                if (item.id === 'custom') {
+                    const price = item.price || 0;
+                    breakdown[price] = (breakdown[price] || 0) + item.quantity;
+                }
+            });
+        });
+        // Sort by price descending
+        return Object.entries(breakdown)
+            .sort(([a], [b]) => Number(b) - Number(a))
+            .map(([price, count]) => ({ price, count }));
+    }, [completedOrders]);
+
     // Time Series Data (10:00 - 18:00)
     const graphData = useMemo(() => {
         const data = {};
@@ -55,7 +73,7 @@ const SalesDashboard = () => {
     // Premium SVG Graph Generator (Enhanced Height)
     const renderGraph = () => {
         const hours = Object.keys(graphData).map(Number);
-        const height = 550; // Increased height
+        const height = 450;
         const width = 800;
         const paddingLeft = 60;
         const paddingRight = 40;
@@ -77,7 +95,7 @@ const SalesDashboard = () => {
         const gridValues = Array.from({ length: 11 }, (_, i) => i * 10);
 
         return (
-            <svg viewBox={`0 0 ${width} ${height}`} className="premium-graph">
+            <svg viewBox={`0 0 ${width} ${height}`} className="premium-graph" onClick={() => setSelectedPoint(null)}>
                 {/* Background Grid */}
                 {gridValues.map(val => (
                     <g key={val}>
@@ -99,24 +117,54 @@ const SalesDashboard = () => {
                     <text key={h} x={getX(h)} y={height - 25} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{h}:00</text>
                 ))}
 
-                {/* Data Lines */}
-                <path d={makePath('latte')} fill="none" stroke="#2E2300" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d={makePath('topping')} fill="none" stroke="#DE9501" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                {/* Data Lines - Updated Colors */}
+                {/* Latte: Green (#81c784) */}
+                <path d={makePath('latte')} fill="none" stroke="#81c784" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                {/* Topping: Pink (#f06292) */}
+                <path d={makePath('topping')} fill="none" stroke="#f06292" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
 
-                {/* Data Points */}
+                {/* Data Points with Interaction */}
                 {hours.map(h => (
                     <g key={h}>
-                        <circle cx={getX(h)} cy={getY(graphData[h].latte)} r="7" fill="#fff" stroke="#2E2300" strokeWidth="3" />
-                        <circle cx={getX(h)} cy={getY(graphData[h].topping)} r="7" fill="#fff" stroke="#DE9501" strokeWidth="3" />
+                        {/* Latte Point */}
+                        <circle
+                            cx={getX(h)} cy={getY(graphData[h].latte)} r="9"
+                            fill="#fff" stroke="#81c784" strokeWidth="3"
+                            cursor="pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPoint({ x: getX(h), y: getY(graphData[h].latte), count: graphData[h].latte, label: '抹茶ラテ' });
+                            }}
+                        />
+                        {/* Topping Point */}
+                        <circle
+                            cx={getX(h)} cy={getY(graphData[h].topping)} r="9"
+                            fill="#fff" stroke="#f06292" strokeWidth="3"
+                            cursor="pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPoint({ x: getX(h), y: getY(graphData[h].topping), count: graphData[h].topping, label: 'トッピング' });
+                            }}
+                        />
                     </g>
                 ))}
+
+                {/* Tooltip */}
+                {selectedPoint && (
+                    <g transform={`translate(${selectedPoint.x}, ${selectedPoint.y - 45})`}>
+                        <path d="M -30 -30 L 30 -30 L 30 0 L 5 0 L 0 8 L -5 0 L -30 0 Z" fill="#333" />
+                        <text x="0" y="-10" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">
+                            {selectedPoint.count}杯
+                        </text>
+                    </g>
+                )}
 
                 {/* Legend */}
                 <g transform={`translate(${width - 180}, ${paddingTop - 10})`}>
                     <rect x="-10" y="-10" width="180" height="70" rx="10" fill="rgba(255,255,255,0.8)" />
-                    <line x1="10" y1="15" x2="40" y2="15" stroke="#2E2300" strokeWidth="5" />
+                    <line x1="10" y1="15" x2="40" y2="15" stroke="#81c784" strokeWidth="5" />
                     <text x="50" y="20" fontSize="16" fontWeight="bold">抹茶ラテ</text>
-                    <line x1="10" y1="45" x2="40" y2="45" stroke="#DE9501" strokeWidth="5" />
+                    <line x1="10" y1="45" x2="40" y2="45" stroke="#f06292" strokeWidth="5" />
                     <text x="50" y="50" fontSize="16" fontWeight="bold">トッピング</text>
                 </g>
             </svg>
@@ -136,6 +184,22 @@ const SalesDashboard = () => {
                     <div className="chart-section">
                         <div className="chart-card">
                             {renderGraph()}
+
+                            {/* Custom Items Breakdown Section */}
+                            <div className="custom-breakdown-container">
+                                <h3 className="breakdown-title">カスタム注文内訳</h3>
+                                <div className="breakdown-list">
+                                    {customStats.length > 0 ? (
+                                        customStats.map((stat, i) => (
+                                            <span key={i} className="breakdown-item">
+                                                ¥{stat.price}×{stat.count}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="no-data">データなし</span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 

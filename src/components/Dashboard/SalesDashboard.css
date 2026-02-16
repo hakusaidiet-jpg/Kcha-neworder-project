@@ -58,6 +58,41 @@
     height: auto;
 }
 
+/* Custom Breakdown Styles */
+.custom-breakdown-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px dashed #eee;
+}
+
+.breakdown-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.breakdown-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.breakdown-item {
+    background: #f5f5f5;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #555;
+    border: 1px solid #ddd;
+}
+
+.no-data {
+    color: #999;
+    font-style: italic;
+}
+
 /* Sidebar Stats */
 .stats-sidebar {
     display: flex;
