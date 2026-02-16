@@ -6,6 +6,46 @@ const Layout = () => {
     const location = useLocation();
     const isTopPage = location.pathname === '/';
 
+    // Auto-reload logic
+    React.useEffect(() => {
+        const checkVersion = async () => {
+            try {
+                const response = await fetch('/version.json?t=' + new Date().getTime());
+                if (!response.ok) return;
+                const data = await response.json();
+                const latestVersion = data.buildTime;
+                const currentVersion = localStorage.getItem('app_version_timestamp');
+
+                if (currentVersion && latestVersion > parseInt(currentVersion)) {
+                    // New version available
+                    console.log('New version detected. Reloading...');
+                    localStorage.setItem('app_version_timestamp', latestVersion);
+                    window.location.reload();
+                } else if (!currentVersion) {
+                    // First run
+                    localStorage.setItem('app_version_timestamp', latestVersion);
+                }
+            } catch (e) {
+                console.error('Failed to check version:', e);
+            }
+        };
+
+        // Check immediately
+        checkVersion();
+
+        // Check every 60 seconds
+        const interval = setInterval(checkVersion, 60000);
+
+        // Check on focus
+        const onFocus = () => checkVersion();
+        window.addEventListener('focus', onFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('focus', onFocus);
+        };
+    }, []);
+
     return (
         <div className="min-h-screen bg-gray-100 font-sans text-gray-900 relative overflow-hidden">
             {!isTopPage && (

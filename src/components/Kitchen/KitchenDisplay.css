@@ -5,7 +5,7 @@
     font-family: 'Inter', system-ui, sans-serif;
 }
 
-.kitchen-banner-title {
+.kitchen-banner-container .kitchen-banner-title {
     margin: 0 0 20px 0;
     font-size: 2.2rem;
     color: #0f172a;
@@ -17,13 +17,13 @@
     align-items: center;
 }
 
-.banners-list {
+.kitchen-banner-container .banners-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.kitchen-banner {
+.kitchen-banner-container .kitchen-banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -47,55 +47,57 @@
     }
 }
 
-.banner-latte {
+.kitchen-banner-container .banner-latte {
     border-left-color: #81c784;
     background-color: #e8f5e9;
 }
 
-.banner-latte_topping {
+.kitchen-banner-container .banner-latte_topping {
     border-left-color: #f06292;
     background-color: #fce4ec;
 }
 
-.banner-left {
+.kitchen-banner-container .banner-left {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.order-metadata {
+.kitchen-banner-container .order-metadata {
     font-size: 0.9rem;
     color: #64748b;
     font-weight: 700;
 }
 
-.product-info-row {
+.kitchen-banner-container .product-info-row {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-.product-name {
+.kitchen-banner-container .kitchen-product-name {
     font-size: 2rem;
     font-weight: 800;
-    color: #1e293b;
+    color: #000000 !important;
 }
 
-.product-qty {
-    font-size: 1.8rem;
+.kitchen-banner-container .kitchen-product-qty {
+    font-size: 3rem;
+    /* Increased from 1.8rem */
     font-weight: 900;
     background: #f1f5f9;
     padding: 2px 12px;
     border-radius: 8px;
+    color: #000000;
 }
 
-.banner-right {
+.kitchen-banner-container .banner-right {
     display: flex;
     align-items: center;
     gap: 30px;
 }
 
-.complete-btn-kitchen {
+.kitchen-banner-container .complete-btn-kitchen {
     background: white;
     color: #0f172a;
     border: 3px solid #0f172a;
@@ -107,13 +109,13 @@
     transition: all 0.2s;
 }
 
-.complete-btn-kitchen:active {
+.kitchen-banner-container .complete-btn-kitchen:active {
     background: #0f172a;
     color: white;
     transform: scale(0.95);
 }
 
-.time-counter {
+.kitchen-banner-container .time-counter {
     font-size: 2.5rem;
     font-weight: 900;
     font-family: monospace;
@@ -121,19 +123,19 @@
     text-align: right;
 }
 
-.normal-time {
+.kitchen-banner-container .normal-time {
     color: #1e293b;
 }
 
-.warning-time {
+.kitchen-banner-container .warning-time {
     color: #f59e0b;
 }
 
-.urgent-time {
+.kitchen-banner-container .urgent-time {
     color: #ef4444;
 }
 
-.no-banners {
+.kitchen-banner-container .no-banners {
     text-align: center;
     padding: 100px 0;
     color: #94a3b8;
