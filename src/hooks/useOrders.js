@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, serverTimestamp, limit, getDocs } from 'firebase/firestore';
 
 export const useOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -55,14 +55,29 @@ export const useOrders = () => {
             return false;
         }
         try {
-            const orderNum = Math.floor(Math.random() * 25) + 1;
+            // Get the last order to determine the next order number
+            const lastOrderQuery = query(
+                collection(db, 'orders'),
+                orderBy('createdAt', 'desc'),
+                limit(1)
+            );
+            const lastOrderSnapshot = await getDocs(lastOrderQuery);
+            let nextOrderNum = 1;
+
+            if (!lastOrderSnapshot.empty) {
+                const lastOrderData = lastOrderSnapshot.docs[0].data();
+                const lastNum = lastOrderData.orderNum || 0;
+                // Cycle from 1 to 25
+                nextOrderNum = (lastNum % 25) + 1;
+            }
+
             const docRef = await addDoc(collection(db, 'orders'), {
                 items,
                 totalAmount,
                 receivedAmount,
                 change: receivedAmount - totalAmount,
                 status: 'pending',
-                orderNum,
+                orderNum: nextOrderNum,
                 createdAt: serverTimestamp(),
             });
             return true;
