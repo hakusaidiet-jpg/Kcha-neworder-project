@@ -290,10 +290,4 @@
     font-size: 1.6rem;
 }
 
-.amount-col {
-    font-weight: 700;
-    color: #999;
-    /* De-emphasized as requested */
-    font-size: 1.3rem;
-    text-align: right;
-}
+/* Amount column removed */
