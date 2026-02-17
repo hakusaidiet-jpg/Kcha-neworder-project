@@ -9,6 +9,7 @@ const ExtrasScreen = () => {
     const [memoText, setMemoText] = useState('');
     const [showHistory, setShowHistory] = useState(false);
     const [showSales, setShowSales] = useState(false);
+    const [lastTap, setLastTap] = useState(0);
     const scrollRef = useRef(null);
 
     // Auto-scroll to bottom of memos
@@ -33,16 +34,14 @@ const ExtrasScreen = () => {
     const month = today.getMonth() + 1;
     const day = today.getDate();
 
-    // Calculate Today's Sales (10:00 - 18:00 only)
+    // Calculate Today's Sales (Matches Dashboard Logic)
     const todaysSalesTotal = useMemo(() => {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         return orders
             .filter(o => {
-                const h = o.createdAt.getHours();
-                return o.status === 'completed' &&
-                    o.createdAt >= startOfDay &&
-                    (h >= 10 && h < 18);
+                const date = o.createdAt;
+                return date >= startOfDay;
             })
             .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     }, [orders]);
@@ -111,8 +110,18 @@ const ExtrasScreen = () => {
         if (currentHour >= 18) {
             setShowSales(prev => !prev);
         } else {
-            // Optional: alert or shake to indicate not allowed yet
-            // alert('18:00以降に表示されます');
+            alert('18:00以降に表示されます');
+        }
+    };
+
+    const handleSalesTap = () => {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 400; // ms
+        if (now - lastTap < DOUBLE_TAP_DELAY) {
+            handleSalesDoubleTap();
+            setLastTap(0); // Reset after reveal
+        } else {
+            setLastTap(now);
         }
     };
 
@@ -120,21 +129,27 @@ const ExtrasScreen = () => {
         <div className="extras-container">
             <div className="extras-grid">
 
-                {/* 1. Today's Sales Panel */}
-                <div className="panel sales-panel" onDoubleClick={handleSalesDoubleTap}>
+                <div className="panel sales-panel" onClick={handleSalesTap} style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
                     <h2 className="panel-title sales-title">今日の売り上げ</h2>
-                    <div className="date-display">
-                        <span className="year">{year}年</span>
-                        <div className="month-day">
-                            {month}月 {day}日
+                    {showSales ? (
+                        <div className="revealed-sales">
+                            <div className="revealed-date">{year}年{month}月{day}日</div>
+                            <div className="revealed-amount">¥{todaysSalesTotal.toLocaleString()}</div>
                         </div>
-                    </div>
-                    <div className="amount-display">
-                        <span className="currency">¥</span>
-                        <span className="amount">
-                            {showSales ? todaysSalesTotal.toLocaleString() : '****'}
-                        </span>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="date-display">
+                                <span className="year">{year}年</span>
+                                <div className="month-day">
+                                    {month}月 {day}日
+                                </div>
+                            </div>
+                            <div className="amount-display">
+                                <span className="currency">¥</span>
+                                <span className="amount">****</span>
+                            </div>
+                        </>
+                    )}
                     <div className="dash-line"></div>
                 </div>
 
