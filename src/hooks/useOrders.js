@@ -50,6 +50,14 @@ export const useOrders = () => {
     }, []);
 
     const addOrder = async (items, totalAmount, receivedAmount) => {
+        // Time Restriction: 10:00 - 18:00
+        const now = new Date();
+        const hour = now.getHours();
+        if (hour < 10 || hour >= 18) {
+            alert('注文受付時間外です (10:00 - 18:00)');
+            return false;
+        }
+
         if (!db) {
             console.error("addOrder failed: Firestore 'db' is not initialized.");
             return false;
