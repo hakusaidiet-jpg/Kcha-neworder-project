@@ -23,7 +23,8 @@ const KitchenDisplay = () => {
                 ...item,
                 orderId: order.id,
                 createdAt: order.createdAt,
-                uniqueKey: `${order.id}-${item.originalIndex}`
+                uniqueKey: `${order.id}-${item.originalIndex}`,
+                orderNum: order.orderNum
             }));
     });
 
