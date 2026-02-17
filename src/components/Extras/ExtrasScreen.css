@@ -5,7 +5,7 @@
     height: 100dvh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-family: inherit;
 }
 
 .extras-grid {

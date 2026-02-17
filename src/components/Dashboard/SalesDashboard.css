@@ -5,7 +5,7 @@
     background-color: #B2EBF2;
     /* Soft light blue */
     padding: 40px;
-    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-family: inherit;
     box-sizing: border-box;
 }
 

@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
+@import url('https://fonts.cdnfonts.com/css/mgen-font-1c');
 
 :root {
-  font-family: 'M PLUS Rounded 1c', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Mgen+ 1c', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -22,7 +22,9 @@
 }
 
 /* 全体高さを正確に */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
 }
@@ -59,15 +61,18 @@ body {
   opacity: 0;
   transform: scale(0.98);
 }
+
 .page-enter-active {
   opacity: 1;
   transform: scale(1);
   transition: opacity 300ms, transform 300ms;
 }
+
 .page-exit {
   opacity: 1;
   transform: scale(1);
 }
+
 .page-exit-active {
   opacity: 0;
   transform: scale(0.98);

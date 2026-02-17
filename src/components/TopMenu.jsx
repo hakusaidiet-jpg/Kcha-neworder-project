@@ -26,6 +26,16 @@ const TopMenu = () => {
           </button>
         ))}
       </div>
+      <div style={{
+        position: 'absolute',
+        bottom: '10px',
+        right: '10px',
+        fontSize: '0.8rem',
+        color: '#ccc',
+        pointerEvents: 'none'
+      }}>
+        v3.1.3
+      </div>
     </div>
   );
 };
