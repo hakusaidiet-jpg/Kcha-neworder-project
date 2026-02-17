@@ -6,23 +6,48 @@ const Layout = () => {
     const location = useLocation();
     const isTopPage = location.pathname === '/';
 
-    // Auto-reload logic
+    /**
+     * -------------------------------
+     * ① アプリの高さを常にviewportに同期
+     * -------------------------------
+     */
+    React.useEffect(() => {
+        const setAppHeight = () => {
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${vh}px`);
+        };
+
+        setAppHeight();
+
+        window.addEventListener('resize', setAppHeight);
+        window.addEventListener('orientationchange', setAppHeight);
+
+        return () => {
+            window.removeEventListener('resize', setAppHeight);
+            window.removeEventListener('orientationchange', setAppHeight);
+        };
+    }, []);
+
+    /**
+     * -------------------------------
+     * ② Auto-reload (バージョン更新検知)
+     * -------------------------------
+     */
     React.useEffect(() => {
         const checkVersion = async () => {
             try {
                 const response = await fetch('/version.json?t=' + new Date().getTime());
                 if (!response.ok) return;
+
                 const data = await response.json();
                 const latestVersion = data.buildTime;
                 const currentVersion = localStorage.getItem('app_version_timestamp');
 
                 if (currentVersion && latestVersion > parseInt(currentVersion)) {
-                    // New version available
                     console.log('New version detected. Reloading...');
                     localStorage.setItem('app_version_timestamp', latestVersion);
                     window.location.reload();
                 } else if (!currentVersion) {
-                    // First run
                     localStorage.setItem('app_version_timestamp', latestVersion);
                 }
             } catch (e) {
@@ -30,14 +55,11 @@ const Layout = () => {
             }
         };
 
-        // Check immediately
         checkVersion();
 
-        // Check every 60 seconds
         const interval = setInterval(checkVersion, 60000);
-
-        // Check on focus
         const onFocus = () => checkVersion();
+
         window.addEventListener('focus', onFocus);
 
         return () => {
@@ -46,19 +68,46 @@ const Layout = () => {
         };
     }, []);
 
+    /**
+     * -------------------------------
+     * ③ レイアウト描画
+     * -------------------------------
+     */
     return (
-        <div className="h-full bg-gray-100 font-sans text-gray-900 relative overflow-hidden">
+        <div
+            style={{
+                height: 'var(--app-height)',        // ←ここがキモ
+                width: '100%',
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingBottom: 'env(safe-area-inset-bottom)',
+                paddingLeft: 'env(safe-area-inset-left)',
+                paddingRight: 'env(safe-area-inset-right)',
+                overflow: 'hidden'
+            }}
+            className="bg-gray-100 font-sans text-gray-900 relative"
+        >
             {!isTopPage && (
                 <button
                     onClick={() => navigate('/')}
                     className="absolute top-4 left-4 z-50 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
                     aria-label="Back to Top"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
             )}
+
             <Outlet />
         </div>
     );
