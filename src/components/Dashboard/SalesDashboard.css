@@ -1,5 +1,7 @@
 .dashboard-root {
-    min-height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background-color: #B2EBF2;
     /* Soft light blue */
     padding: 40px;
