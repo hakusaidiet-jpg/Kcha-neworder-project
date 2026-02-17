@@ -47,7 +47,7 @@ const Layout = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-100 font-sans text-gray-900 relative overflow-hidden">
+        <div className="h-full bg-gray-100 font-sans text-gray-900 relative overflow-hidden">
             {!isTopPage && (
                 <button
                     onClick={() => navigate('/')}
