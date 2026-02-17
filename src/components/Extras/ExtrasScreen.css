@@ -81,6 +81,26 @@
     margin-top: 20px;
 }
 
+/* Revealed Sales (after double-tap) */
+.revealed-sales {
+    color: #FF5252;
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.revealed-date {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.revealed-amount {
+    font-size: 4.5rem;
+    font-weight: 900;
+}
+
 /* Memo Panel */
 .memo-panel {
     width: 450px;
