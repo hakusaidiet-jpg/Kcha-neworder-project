@@ -273,7 +273,7 @@ const OrderScreen = () => {
                             onClick={handleCheckout}
                             disabled={isProcessing || totalAmount === 0}
                         >
-                            {isProcessing ? '...' : '完了'}
+                            {isProcessing ? '...' : '決済'}
                         </button>
                     </div>
                 </div>
