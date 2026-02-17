@@ -33,12 +33,17 @@ const ExtrasScreen = () => {
     const month = today.getMonth() + 1;
     const day = today.getDate();
 
-    // Calculate Today's Sales
+    // Calculate Today's Sales (10:00 - 18:00 only)
     const todaysSalesTotal = useMemo(() => {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         return orders
-            .filter(o => o.status === 'completed' && o.createdAt >= startOfDay)
+            .filter(o => {
+                const h = o.createdAt.getHours();
+                return o.status === 'completed' &&
+                    o.createdAt >= startOfDay &&
+                    (h >= 10 && h < 18);
+            })
             .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     }, [orders]);
 
@@ -53,7 +58,10 @@ const ExtrasScreen = () => {
     // Aggregate Historical Data (Sales by Date and Group by Year)
     const historyDataByYear = useMemo(() => {
         const groups = {};
-        orders.filter(o => o.status === 'completed').forEach(o => {
+        orders.filter(o => {
+            const h = o.createdAt.getHours();
+            return o.status === 'completed' && (h >= 10 && h < 18);
+        }).forEach(o => {
             const dateStr = o.createdAt.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
             const yearStr = o.createdAt.getFullYear().toString();
 
