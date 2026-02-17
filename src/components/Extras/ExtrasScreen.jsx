@@ -8,6 +8,7 @@ const ExtrasScreen = () => {
     const { memos, addMemo } = useMemos();
     const [memoText, setMemoText] = useState('');
     const [showHistory, setShowHistory] = useState(false);
+    const [showSales, setShowSales] = useState(false);
     const scrollRef = useRef(null);
 
     // Auto-scroll to bottom of memos
@@ -70,8 +71,11 @@ const ExtrasScreen = () => {
 
         const allData = [...Object.values(groups), ...formatted2025];
 
+        // Filter: ONLY Latte >= 30 AND Topping >= 30
+        const filteredData = allData.filter(d => d.latte >= 30 && d.topping >= 30);
+
         // Group by Year
-        const byYear = allData.reduce((acc, current) => {
+        const byYear = filteredData.reduce((acc, current) => {
             const year = current.year;
             if (!acc[year]) acc[year] = [];
             acc[year].push(current);
@@ -94,12 +98,22 @@ const ExtrasScreen = () => {
         }
     };
 
+    const handleSalesDoubleTap = () => {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 18) {
+            setShowSales(prev => !prev);
+        } else {
+            // Optional: alert or shake to indicate not allowed yet
+            // alert('18:00以降に表示されます');
+        }
+    };
+
     return (
         <div className="extras-container">
             <div className="extras-grid">
 
                 {/* 1. Today's Sales Panel */}
-                <div className="panel sales-panel">
+                <div className="panel sales-panel" onDoubleClick={handleSalesDoubleTap}>
                     <h2 className="panel-title sales-title">今日の売り上げ</h2>
                     <div className="date-display">
                         <span className="year">{year}年</span>
@@ -109,7 +123,9 @@ const ExtrasScreen = () => {
                     </div>
                     <div className="amount-display">
                         <span className="currency">¥</span>
-                        <span className="amount">{todaysSalesTotal.toLocaleString()}</span>
+                        <span className="amount">
+                            {showSales ? todaysSalesTotal.toLocaleString() : '****'}
+                        </span>
                     </div>
                     <div className="dash-line"></div>
                 </div>
@@ -168,7 +184,7 @@ const ExtrasScreen = () => {
                                                 <th>日付</th>
                                                 <th>ラテ</th>
                                                 <th>トッピング</th>
-                                                <th>売上金額</th>
+                                                {/* Amount removed as requested */}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -177,7 +193,6 @@ const ExtrasScreen = () => {
                                                     <td className="date-col">{row.date}</td>
                                                     <td className="count-col">{row.latte}杯</td>
                                                     <td className="count-col">{row.topping}杯</td>
-                                                    <td className="amount-col">¥{row.total.toLocaleString()}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
