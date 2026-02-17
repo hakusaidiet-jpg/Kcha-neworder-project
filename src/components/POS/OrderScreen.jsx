@@ -290,7 +290,7 @@ const OrderScreen = () => {
                         {isConnected ? '同期中' : 'オフライン'}
                     </div>
                     <div style={{ fontSize: '0.9rem', color: '#ff6600', fontWeight: 'bold' }}>
-                        NEW v3.1.0 (UI修正版)
+                        NEW v3.2.0 (ID循環修正)
                     </div>
                 </div>
 
