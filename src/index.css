@@ -40,7 +40,8 @@ body {
   /* iOS最新 */
   min-height: 100dvh;
 
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
 }
 
