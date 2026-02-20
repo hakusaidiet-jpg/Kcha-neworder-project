@@ -51,9 +51,16 @@ export const useOrders = () => {
 
     const addOrder = async (items, totalAmount, receivedAmount) => {
         // Time Restriction: 10:00 - 18:00
+        // Bypass for Special Period: 2026/02/20 - 2026/02/23
         const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
         const hour = now.getHours();
-        if (hour < 10 || hour >= 18) {
+
+        const isSpecialPeriod = year === 2026 && month === 2 && (day >= 20 && day <= 28);
+
+        if (!isSpecialPeriod && (hour < 10 || hour >= 18)) {
             alert('注文受付時間外です (10:00 - 18:00)');
             return false;
         }
