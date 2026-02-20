@@ -59,7 +59,12 @@ const ExtrasScreen = () => {
         const groups = {};
         orders.filter(o => {
             const h = o.createdAt.getHours();
-            return o.status === 'completed' && (h >= 10 && h < 18);
+            const y = o.createdAt.getFullYear();
+            const m = o.createdAt.getMonth() + 1;
+            const d = o.createdAt.getDate();
+            const isSpecialPeriod = y === 2026 && m === 2 && (d >= 20 && d <= 28);
+
+            return o.status === 'completed' && (isSpecialPeriod || (h >= 10 && h < 18));
         }).forEach(o => {
             const dateStr = o.createdAt.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
             const yearStr = o.createdAt.getFullYear().toString();
@@ -106,8 +111,15 @@ const ExtrasScreen = () => {
     };
 
     const handleSalesDoubleTap = () => {
-        const currentHour = new Date().getHours();
-        if (currentHour >= 18) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const currentHour = now.getHours();
+
+        const isSpecialPeriod = year === 2026 && month === 2 && (day >= 20 && day <= 28);
+
+        if (isSpecialPeriod || currentHour >= 18) {
             setShowSales(prev => !prev);
         } else {
             alert('18:00以降に表示されます');
