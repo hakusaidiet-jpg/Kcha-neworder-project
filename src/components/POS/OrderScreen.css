@@ -10,7 +10,6 @@
     gap: 30px;
     background-color: #fafafa;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 /* =========================
@@ -407,5 +406,141 @@
     .order-screen-container .control-panel {
         width: 100%;
         box-sizing: border-box;
+    }
+}
+
+/* =========================
+   Smartphone Responsiveness
+   ========================= */
+@media (max-width: 768px) {
+    .order-screen-container {
+        flex-direction: column;
+        padding: 60px 15px 15px 15px;
+        /* Added 60px top padding for back button */
+        gap: 15px;
+        overflow-y: auto;
+        height: auto !important;
+    }
+
+    /* Product Grid Overrides */
+    .order-screen-container .pos-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        padding: 10px;
+        gap: 10px;
+        flex: none;
+    }
+
+    /* Reset specific child positioning for mobile */
+    .order-screen-container .pos-product-grid .pos-product-card:nth-child(n) {
+        grid-column: auto !important;
+        grid-row: auto !important;
+    }
+
+    .order-screen-container .pos-product-card {
+        width: 100%;
+        height: 150px;
+        /* Reduced from 180px */
+    }
+
+    .order-screen-container .pos-product-name {
+        font-size: 1.2rem;
+        /* Reduced */
+    }
+
+    .order-screen-container .pos-product-price {
+        font-size: 1rem;
+        /* Reduced */
+    }
+
+    .order-screen-container .counter-value {
+        font-size: 1.8rem;
+        /* Reduced */
+        min-width: 30px;
+    }
+
+    .order-screen-container .counter-btn {
+        width: 30px;
+        /* Reduced */
+        height: 30px;
+        /* Reduced */
+        font-size: 1.2rem;
+        /* Reduced */
+    }
+
+    /* Control Panel Overrides */
+    .order-screen-container .control-panel {
+        width: 100%;
+        padding: 15px;
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+        overflow: visible;
+        margin-top: 10px;
+        box-sizing: border-box;
+    }
+
+    .order-screen-container .customer-display-box {
+        height: 80px;
+        padding: 0 15px;
+        justify-content: center;
+    }
+
+    .order-screen-container .customer-text-upside-down {
+        transform: none !important;
+        text-align: center;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .order-screen-container .customer-text-upside-down .label {
+        font-size: 1.2rem;
+    }
+
+    .order-screen-container .customer-text-upside-down .amount {
+        font-size: 2rem;
+        color: #fde047;
+    }
+
+    .order-screen-container .display-row .value {
+        font-size: 1.4rem;
+        /* Reduced */
+    }
+
+    .order-screen-container .display-row.change .value {
+        font-size: 2.2rem;
+        /* Reduced */
+    }
+
+    .order-screen-container .keypad {
+        grid-template-rows: repeat(4, 60px);
+        gap: 8px;
+    }
+
+    .order-screen-container .key-btn,
+    .order-screen-container .pos-complete-btn {
+        height: 60px;
+        font-size: 1.4rem;
+        /* Reduced */
+    }
+
+    .order-screen-container .custom-price-indicator .indicator-amount {
+        font-size: 1.6rem;
+        /* Reduced */
+    }
+}
+
+@media (max-width: 480px) {
+    .order-screen-container .pos-product-card {
+        height: 150px;
+    }
+
+    .order-screen-container .pos-product-name {
+        font-size: 1.2rem;
+    }
+
+    .order-screen-container .customer-display-box {
+        height: 80px;
     }
 }
