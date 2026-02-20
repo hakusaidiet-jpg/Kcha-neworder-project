@@ -68,3 +68,43 @@
 .item-4 {
   background-color: #7D4427;
 }
+
+/* =========================
+   Mobile Responsiveness
+   ========================= */
+@media (max-width: 768px) {
+  .top-menu-wrapper {
+    padding: 20px;
+  }
+
+  .top-menu-title {
+    font-size: 3rem;
+    margin-bottom: 40px;
+  }
+
+  .top-menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .menu-item {
+    font-size: 1.8rem;
+    border-radius: 25px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-menu-title {
+    font-size: 2.2rem;
+  }
+
+  .top-menu-grid {
+    gap: 15px;
+  }
+
+  .menu-item {
+    font-size: 1.4rem;
+    border-radius: 20px;
+  }
+}
