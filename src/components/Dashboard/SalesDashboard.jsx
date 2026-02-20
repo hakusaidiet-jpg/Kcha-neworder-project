@@ -60,7 +60,13 @@ const SalesDashboard = () => {
 
         completedOrders.forEach(o => {
             const h = o.createdAt?.getHours();
-            if (h >= 10 && h <= 18 && data[h]) {
+            const y = o.createdAt?.getFullYear();
+            const m = (o.createdAt?.getMonth() || 0) + 1;
+            const d = o.createdAt?.getDate();
+            const isSpecialPeriod = y === 2026 && m === 2 && (d >= 20 && d <= 28);
+
+            // Even if it's the special period, the graph is hardcoded for 10-18
+            if ((isSpecialPeriod || (h >= 10 && h <= 18)) && data[h]) {
                 o.items.forEach(i => {
                     if (i.id === 'latte') data[h].latte += i.quantity;
                     if (i.id === 'latte_topping') data[h].topping += i.quantity;
