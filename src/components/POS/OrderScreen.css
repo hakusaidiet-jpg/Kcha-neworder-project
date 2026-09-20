@@ -106,7 +106,6 @@
 
 .order-screen-container .pos-product-name {
     font-size: 2.2rem;
-    color: #ffffff !important;
     line-height: 1.1;
     white-space: pre-wrap;
     text-align: center;
@@ -164,26 +163,26 @@
 }
 
 .order-screen-container .counter-value {
-    font-size: 2.5rem;
-    font-weight: bold;
-    min-width: 40px;
+    font-size: 3.5rem;
+    font-weight: 900;
+    min-width: 50px;
     text-align: center;
 }
 
-/* =========================
-   コントロールパネル（右側）
-========================= */
+/* Control Panel */
 .order-screen-container .control-panel {
-    width: 420px;
-    background: #fff;
-    border-radius: 25px;
-    padding: 25px;
+    width: 380px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    height: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.02);
+
+    /* Scroll fix for iPad overflow */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .order-screen-container .control-panel::-webkit-scrollbar {
@@ -216,188 +215,173 @@
 }
 
 /* =========================
-   客面表示（180度回転）
+   客面表示（青背景・黄色文字）
 ========================= */
 .order-screen-container .customer-display-box {
-    background: #111;
-    border-radius: 20px;
-    height: 100px;
-    margin-bottom: 20px;
-    padding: 0 25px;
+    height: 160px;
+    background: #1a237e; /* 視認性の高いロイヤルネイビーブルー */
+    color: #fff;
+    border-radius: 15px;
     display: flex;
+    justify-content: flex-end;
     align-items: center;
-    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
-    border: 2px solid #333;
+    padding: 0 30px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .order-screen-container .customer-text-upside-down {
     transform: rotate(180deg);
+    text-align: right;
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
 }
 
 .order-screen-container .customer-text-upside-down .label {
-    font-size: 1.5rem;
-    color: #888;
+    font-size: 1.6rem;
+    color: #e0e0e0;
     font-weight: bold;
+    margin-bottom: 5px;
 }
 
 .order-screen-container .customer-text-upside-down .amount {
-    font-size: 3.5rem;
+    font-size: 4rem;
     font-weight: 900;
-    color: #ffeb3b;
+    color: #fde047; /* 鮮やかなイエロー */
     font-family: monospace;
     letter-spacing: 2px;
 }
 
-/* =========================
-   店員面表示
-========================= */
 .order-screen-container .staff-display-box {
-    background: #f8f9fa;
-    border-radius: 20px;
-    padding: 10px 20px;
     margin-bottom: 20px;
-    border: 1px solid #e9ecef;
 }
 
 .order-screen-container .display-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
     padding: 4px 0;
 }
 
 .order-screen-container .display-row .label {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: #666;
     font-weight: bold;
 }
 
 .order-screen-container .display-row .value {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #333;
-    font-family: monospace;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #000;
 }
 
 .order-screen-container .display-row.staff-total-row {
-    border-top: 2px dashed #ccc;
-    border-bottom: 2px dashed #ccc;
-    padding: 8px 0;
-    margin: 4px 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
 }
 
-.order-screen-container .display-row.staff-total-row .label {
-    font-size: 1.6rem;
-    color: #111;
-}
-
-.order-screen-container .display-row.staff-total-row .value {
-    font-size: 2.2rem;
-    color: #111;
+.order-screen-container .display-row.change .label {
+    font-size: 2rem;
+    color: #d32f2f;
 }
 
 .order-screen-container .display-row.change .value {
-    font-size: 2.6rem;
-    font-weight: 900;
-    color: #e53935;
+    font-size: 4rem;
+    color: #d32f2f;
 }
 
 /* =========================
-   テンキー
+   テンキー & 決済ボタン（「0」の右横に横長配置）
 ========================= */
 .order-screen-container .keypad-container {
-    flex: 1;
+    margin-top: auto;
+    flex: 0 1 auto;
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
 }
 
 .order-screen-container .keypad {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 75px);
-    gap: 10px;
+    gap: 12px;
     width: 100%;
+    margin: 0 auto;
 }
 
 .order-screen-container .key-btn {
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
-    background: #ffffff;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #333;
+    border: 2px solid #333;
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    font-size: 2rem;
+    font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 75px;
 }
 
 .order-screen-container .key-btn:active {
-    background: #f0f0f0;
-    transform: translateY(2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background: #333;
+    color: #fff;
 }
 
-.order-screen-container .key-btn.ac-btn {
-    background: #ffebee;
-    color: #d32f2f;
-    border-color: #ffcdd2;
+.order-screen-container .ac-btn {
+    background: #000;
+    color: #fff;
+    border-color: #000;
 }
 
-.order-screen-container .key-btn.ac-btn:active {
-    background: #ffcdd2;
+.order-screen-container .zero-btn {
+    grid-column: 1;
+    grid-row: 4;
 }
 
-.order-screen-container .key-btn.back-btn {
-    background: #f5f5f5;
-    color: #616161;
-    font-size: 1.5rem;
+.order-screen-container .back-btn {
+    font-size: 2.2rem;
 }
 
-.order-screen-container .key-btn.back-btn:active {
-    background: #e0e0e0;
-}
-
-.order-screen-container .key-btn.zero-btn {
-    grid-column: span 1;
-}
-
+/* 「０」の右横に横長の決済ボタン */
 .order-screen-container .pos-complete-btn {
-    grid-column: 4;
-    grid-row: 3 / span 2;
-    border-radius: 15px;
-    border: none;
-    background: #4caf50;
+    grid-column: 2 / span 3;
+    grid-row: 4;
+    background: #d32f2f;
     color: white;
-    font-size: 1.8rem;
-    font-weight: bold;
+    font-size: 2rem;
+    font-weight: 900;
+    border: none;
+    border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 75px;
     transition: all 0.2s;
 }
 
 .order-screen-container .pos-complete-btn.ready {
-    animation: pulse 2s infinite;
+    animation: pulse-glow 2s infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-glow {
     0% {
-        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
     }
 
-    50% {
-        transform: scale(1.02);
+    70% {
+        box-shadow: 0 0 0 10px rgba(211, 47, 47, 0);
     }
 
     100% {
-        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
     }
 }
 
 .order-screen-container .pos-complete-btn:active {
-    transform: translateY(2px);
+    transform: scale(0.95);
 }
 
 .order-screen-container .pos-complete-btn:disabled {
@@ -452,6 +436,7 @@
         height: auto !important;
     }
 
+    /* Product Grid Overrides */
     .order-screen-container .pos-product-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: auto;
@@ -484,6 +469,7 @@
         font-size: 1.2rem;
     }
 
+    /* Control Panel Overrides */
     .order-screen-container .control-panel {
         width: 100%;
         padding: 15px;
@@ -495,6 +481,7 @@
 
     .order-screen-container .customer-display-box {
         height: 80px;
+        background: #1a237e;
         padding: 0 15px;
         justify-content: center;
     }
