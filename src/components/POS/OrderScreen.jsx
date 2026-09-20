@@ -188,6 +188,36 @@ const OrderScreen = () => {
         setEditingPriceInput('');
     };
 
+    // 数量のインクリメント（+1）
+    const handleIncrement = (id, e) => {
+        if (e) e.stopPropagation();
+        if (editingProductId) return;
+
+        setCart(prev => {
+            const currentCount = prev[id] || 0;
+            if (currentCount >= 10) return prev;
+            return { ...prev, [id]: currentCount + 1 };
+        });
+    };
+
+    // 数量のデクリメント（-1）
+    const handleDecrement = (id, e) => {
+        if (e) e.stopPropagation();
+        if (editingProductId) return;
+
+        setCart(prev => {
+            const currentCount = prev[id];
+            if (!currentCount) return prev;
+            const newCount = currentCount - 1;
+            if (newCount <= 0) {
+                const { [id]: _, ...rest } = prev;
+                return rest;
+            }
+            return { ...prev, [id]: newCount };
+        });
+    };
+
+    // カード本体タップ時
     const handleCardClick = (productId) => {
         cancelPressTimer();
 
@@ -208,28 +238,8 @@ const OrderScreen = () => {
             return;
         }
 
-        // 通常の注文カウント増加
-        setCart(prev => {
-            const currentCount = prev[productId] || 0;
-            if (currentCount >= 10) return prev;
-            return { ...prev, [productId]: currentCount + 1 };
-        });
-    };
-
-    const handleDecrement = (id, e) => {
-        if (e) e.stopPropagation();
-        if (editingProductId) return;
-
-        setCart(prev => {
-            const currentCount = prev[id];
-            if (!currentCount) return prev;
-            const newCount = currentCount - 1;
-            if (newCount <= 0) {
-                const { [id]: _, ...rest } = prev;
-                return rest;
-            }
-            return { ...prev, [id]: newCount };
-        });
+        // 商品カード本体タップによる注文カウント増加（+1）
+        handleIncrement(productId);
     };
 
     const handleNumPad = (value) => {
@@ -349,6 +359,7 @@ const OrderScreen = () => {
 
                             <div
                                 className="product-counter-area"
+                                onClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
                             >
@@ -362,7 +373,7 @@ const OrderScreen = () => {
                                 <span className="counter-value">{count}</span>
                                 <button
                                     className="counter-btn plus"
-                                    onClick={() => handleCardClick(product.id)}
+                                    onClick={(e) => handleIncrement(product.id, e)}
                                     disabled={!!editingProductId}
                                 >
                                     ＋
