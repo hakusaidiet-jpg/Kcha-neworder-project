@@ -1,17 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import './SalesDashboard.css';
 
 const SalesDashboard = () => {
     const { orders } = useOrders();
+    const [selectedPoint, setSelectedPoint] = useState(null); // { hour, type, count }
 
-    // Filter today's completed orders
+    // Filter completed orders for TODAY only
     const completedOrders = useMemo(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
         return orders.filter(o => {
-            const orderDate = o.createdAt instanceof Date ? o.createdAt : new Date(o.createdAt);
+            const orderDate = o.createdAt;
             return orderDate >= today;
         });
     }, [orders]);
@@ -56,142 +56,107 @@ const SalesDashboard = () => {
                 });
             }
         });
-
-        // Convert to array
-        return Object.entries(data).map(([hour, counts]) => ({
-            hour: `${hour}:00`,
-            ...counts
-        }));
+        return data;
     }, [completedOrders]);
 
-    // Find Max Value for Scaling (min 10)
-    const maxVal = useMemo(() => {
-        const currentMax = Math.max(
-            ...graphData.map(d => Math.max(d.latte, d.topping)),
-            0
-        );
-        return Math.max(currentMax, 10);
-    }, [graphData]);
-
-    // SVG Coordinate Helper Functions
-    const svgWidth = 650;
-    const svgHeight = 280;
-    const padding = { top: 20, right: 30, bottom: 40, left: 40 };
-
-    const chartWidth = svgWidth - padding.left - padding.right;
-    const chartHeight = svgHeight - padding.top - padding.bottom;
-
-    const getX = (index) => {
-        return padding.left + (index / (graphData.length - 1)) * chartWidth;
-    };
-
-    const getY = (val) => {
-        return padding.top + chartHeight - (val / maxVal) * chartHeight;
-    };
-
+    // Premium SVG Graph Generator (Enhanced Height)
     const renderGraph = () => {
-        const lattePoints = graphData.map((d, i) => `${getX(i)},${getY(d.latte)}`).join(' ');
-        const toppingPoints = graphData.map((d, i) => `${getX(i)},${getY(d.topping)}`).join(' ');
+        const hours = Object.keys(graphData).map(Number);
+        const height = 450;
+        const width = 800;
+        const paddingLeft = 60;
+        const paddingRight = 40;
+        const paddingTop = 40;
+        const paddingBottom = 60;
+
+        const maxVal = 100;
+
+        const getX = (hour) => paddingLeft + ((hour - 10) * (width - paddingLeft - paddingRight) / (18 - 10));
+        const getY = (val) => height - paddingBottom - (Math.min(val, maxVal) * (height - paddingTop - paddingBottom) / maxVal);
+
+        const makePath = (type) => {
+            return hours.map((h, i) =>
+                `${i === 0 ? 'M' : 'L'} ${getX(h)} ${getY(graphData[h][type])}`
+            ).join(' ');
+        };
+
+        // Grid values: 0, 10, 20... 100
+        const gridValues = Array.from({ length: 11 }, (_, i) => i * 10);
 
         return (
-            <div className="custom-chart-wrapper">
-                {/* Legend */}
-                <div className="chart-legend">
-                    <div className="legend-item">
-                        <span className="legend-dot dot-latte"></span>
-                        <span className="legend-label">抹茶ラテ</span>
-                    </div>
-                    <div className="legend-item">
-                        <span className="legend-dot dot-topping"></span>
-                        <span className="legend-label">トッピング</span>
-                    </div>
-                </div>
+            <svg viewBox={`0 0 ${width} ${height}`} className="premium-graph" onClick={() => setSelectedPoint(null)}>
+                {/* Background Grid */}
+                {gridValues.map(val => (
+                    <g key={val}>
+                        <line
+                            x1={paddingLeft} y1={getY(val)} x2={width - paddingRight} y2={getY(val)}
+                            stroke="#e5e5e5" strokeWidth={val % 50 === 0 ? "2" : "1"}
+                            strokeDasharray={val % 50 === 0 ? "" : "3,3"}
+                        />
+                        <text x={paddingLeft - 12} y={getY(val) + 5} textAnchor="end" fontSize="13" fill="#666" fontWeight={val % 50 === 0 ? "bold" : "normal"}>{val}</text>
+                    </g>
+                ))}
 
-                <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="dashboard-svg">
-                    {/* Background Horizontal Grid Lines */}
-                    {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
-                        const y = padding.top + chartHeight * ratio;
-                        const labelValue = Math.round(maxVal * (1 - ratio));
-                        return (
-                            <g key={idx}>
-                                <line
-                                    x1={padding.left}
-                                    y1={y}
-                                    x2={svgWidth - padding.right}
-                                    y2={y}
-                                    stroke="#e5e5e5"
-                                    strokeDasharray="4 4"
-                                />
-                                <text
-                                    x={padding.left - 10}
-                                    y={y + 4}
-                                    textAnchor="end"
-                                    className="axis-label"
-                                >
-                                    {labelValue}
-                                </text>
-                            </g>
-                        );
-                    })}
+                {/* Axes */}
+                <line x1={paddingLeft} y1={height - paddingBottom} x2={width - paddingRight} y2={height - paddingBottom} stroke="#333" strokeWidth="2" />
+                <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={height - paddingBottom} stroke="#333" strokeWidth="2" />
 
-                    {/* X-Axis Labels */}
-                    {graphData.map((d, i) => (
-                        <text
-                            key={i}
-                            x={getX(i)}
-                            y={svgHeight - padding.bottom + 25}
-                            textAnchor="middle"
-                            className="axis-label"
-                        >
-                            {d.hour}
+                {/* X Axis Labels */}
+                {hours.map(h => (
+                    <text key={h} x={getX(h)} y={height - 25} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{h}:00</text>
+                ))}
+
+                {/* Data Lines - キッチンバナーと完全同一の色 */}
+                {/* 抹茶ラテ: 緑 (#81c784) */}
+                <path d={makePath('latte')} fill="none" stroke="#81c784" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                {/* トッピング: ピンク (#f06292) */}
+                <path d={makePath('topping')} fill="none" stroke="#f06292" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+
+                {/* Data Points with Interaction */}
+                {hours.map(h => (
+                    <g key={h}>
+                        {/* Latte Point */}
+                        <circle
+                            cx={getX(h)} cy={getY(graphData[h].latte)} r="9"
+                            fill="#fff" stroke="#81c784" strokeWidth="3"
+                            cursor="pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPoint({ x: getX(h), y: getY(graphData[h].latte), count: graphData[h].latte, label: '抹茶ラテ' });
+                            }}
+                        />
+                        {/* Topping Point */}
+                        <circle
+                            cx={getX(h)} cy={getY(graphData[h].topping)} r="9"
+                            fill="#fff" stroke="#f06292" strokeWidth="3"
+                            cursor="pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPoint({ x: getX(h), y: getY(graphData[h].topping), count: graphData[h].topping, label: 'トッピング' });
+                            }}
+                        />
+                    </g>
+                ))}
+
+                {/* Tooltip */}
+                {selectedPoint && (
+                    <g transform={`translate(${selectedPoint.x}, ${selectedPoint.y - 45})`}>
+                        <path d="M -30 -30 L 30 -30 L 30 0 L 5 0 L 0 8 L -5 0 L -30 0 Z" fill="#333" />
+                        <text x="0" y="-10" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">
+                            {selectedPoint.count}杯
                         </text>
-                    ))}
+                    </g>
+                )}
 
-                    {/* Lines */}
-                    <polyline
-                        fill="none"
-                        stroke="#6B8E23"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={lattePoints}
-                    />
-                    <polyline
-                        fill="none"
-                        stroke="#D2B48C"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={toppingPoints}
-                    />
-
-                    {/* Data Points */}
-                    {graphData.map((d, i) => (
-                        <g key={`latte-point-${i}`}>
-                            <circle
-                                cx={getX(i)}
-                                cy={getY(d.latte)}
-                                r="4"
-                                fill="#fff"
-                                stroke="#6B8E23"
-                                strokeWidth="2"
-                            />
-                        </g>
-                    ))}
-                    {graphData.map((d, i) => (
-                        <g key={`topping-point-${i}`}>
-                            <circle
-                                cx={getX(i)}
-                                cy={getY(d.topping)}
-                                r="4"
-                                fill="#fff"
-                                stroke="#D2B48C"
-                                strokeWidth="2"
-                            />
-                        </g>
-                    ))}
-                </svg>
-            </div>
+                {/* Legend */}
+                <g transform={`translate(${width - 180}, ${paddingTop - 10})`}>
+                    <rect x="-10" y="-10" width="180" height="70" rx="10" fill="rgba(255,255,255,0.8)" />
+                    <line x1="10" y1="15" x2="40" y2="15" stroke="#81c784" strokeWidth="5" />
+                    <text x="50" y="20" fontSize="16" fontWeight="bold">抹茶ラテ</text>
+                    <line x1="10" y1="45" x2="40" y2="45" stroke="#f06292" strokeWidth="5" />
+                    <text x="50" y="50" fontSize="16" fontWeight="bold">トッピング</text>
+                </g>
+            </svg>
         );
     };
 
