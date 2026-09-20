@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import './OrderScreen.css';
 
 /* -------------------------------
-   🔊 効果音（事前ロード & 高速再生）
+   効果音（iOS Safari アンロック対応）
 -------------------------------- */
 const checkoutSoundRef = { current: null };
 
 const initAudio = () => {
     if (!checkoutSoundRef.current) {
         const base = import.meta.env.BASE_URL || '/';
-        const path = (base.endsWith('/') ? base : base + '/') + 'checkout.mp3';
+        const audioPath = (base.endsWith('/') ? base : base + '/') + 'checkout.mp3';
+        const audio = new Audio(audioPath);
+        audio.load();
 
-        const audio = new Audio(path);
-        audio.preload = 'auto';
-        audio.volume = 1.0;
-
-        // iOS unlock
         const unlock = () => {
             audio.play().then(() => {
                 audio.pause();
@@ -39,7 +36,6 @@ const initAudio = () => {
 const PRODUCTS = [
     { id: 'tea', name: 'お茶席', price: 700, color: '#6E6702' },
     { id: 'manju', name: '紅白饅頭', price: 500, color: '#C05805' },
-    { id: 'custom', name: 'カスタム', price: 0, color: '#8B4513' },
     { id: 'latte', name: '抹茶ラテ', price: 500, color: '#2E2300' },
     { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#DE9501' },
 ];
@@ -50,8 +46,6 @@ const OrderScreen = () => {
     const [cart, setCart] = useState({});
     const [receivedAmount, setReceivedAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [customPriceMode, setCustomPriceMode] = useState(false);
-    const [customPriceInput, setCustomPriceInput] = useState('');
     const [vh, setVh] = useState(window.innerHeight);
 
     // iPad Height Stability
@@ -67,79 +61,48 @@ const OrderScreen = () => {
     }, []);
 
     // Helper to calculate total
-    const totalAmount = Object.entries(cart).reduce((sum, [id, data]) => {
+    const totalAmount = Object.entries(cart).reduce((sum, [id, count]) => {
         const product = PRODUCTS.find(p => p.id === id);
-        if (typeof data === 'number') {
-            return sum + (product.price * data);
-        }
-        const { count, customPrice } = data;
-        const price = customPrice !== undefined ? customPrice : product.price;
-        return sum + (price * count);
+        if (!product) return sum;
+        return sum + (product.price * count);
     }, 0);
 
     const handleProductClick = (id) => {
-        if (id === 'custom') {
-            if (!customPriceMode) {
-                setCustomPriceMode(true);
-                setCustomPriceInput('');
-                return;
-            } else {
-                const price = parseInt(customPriceInput, 10);
-                if (!price || price <= 0) {
-                    alert('カスタム価格を入力してください');
-                    return;
-                }
-                setCart(prev => {
-                    const currentData = prev[id] || { count: 0, customPrice: price };
-                    const currentCount = typeof currentData === 'number' ? currentData : currentData.count;
-                    if (currentCount >= 10) return prev;
-                    return { ...prev, [id]: { count: currentCount + 1, customPrice: price } };
-                });
-                setCustomPriceMode(false);
-                setCustomPriceInput('');
-                return;
-            }
-        }
-
         setCart(prev => {
-            const currentData = prev[id] || { count: 0 };
-            const currentCount = typeof currentData === 'number' ? currentData : currentData.count;
+            const currentCount = prev[id] || 0;
             if (currentCount >= 10) return prev;
-            return { ...prev, [id]: { count: currentCount + 1 } };
+            return { ...prev, [id]: currentCount + 1 };
         });
     };
 
     const handleDecrement = (id, e) => {
         if (e) e.stopPropagation();
         setCart(prev => {
-            const currentData = prev[id];
-            if (!currentData) return prev;
-            const currentCount = typeof currentData === 'number' ? currentData : currentData.count;
+            const currentCount = prev[id];
+            if (!currentCount) return prev;
             const newCount = currentCount - 1;
             if (newCount <= 0) {
                 const { [id]: _, ...rest } = prev;
                 return rest;
             }
-            return { ...prev, [id]: typeof currentData === 'number' ? newCount : { ...currentData, count: newCount } };
+            return { ...prev, [id]: newCount };
         });
     };
 
     const handleNumPad = (value) => {
-        const setInput = customPriceMode ? setCustomPriceInput : setReceivedAmount;
         if (value === 'AC') {
-            setInput('');
-            if (customPriceMode) setCustomPriceMode(false);
+            setReceivedAmount('');
             return;
         }
         if (value === 'back') {
-            setInput(prev => prev.slice(0, -1));
+            setReceivedAmount(prev => prev.slice(0, -1));
             return;
         }
         if (value === '00') {
-            setInput(prev => prev + '00');
+            setReceivedAmount(prev => prev + '00');
             return;
         }
-        setInput(prev => (prev === '0' ? value : prev + value));
+        setReceivedAmount(prev => (prev === '0' ? value : prev + value));
     };
 
     const handleCheckout = async () => {
@@ -153,13 +116,10 @@ const OrderScreen = () => {
 
         setIsProcessing(true);
         try {
-            const items = Object.entries(cart).map(([id, data]) => {
+            const items = Object.entries(cart).map(([id, count]) => {
                 const product = PRODUCTS.find(p => p.id === id);
-                const count = typeof data === 'number' ? data : data.count;
-                const customPrice = typeof data === 'object' ? data.customPrice : undefined;
                 return {
                     ...product,
-                    price: customPrice !== undefined ? customPrice : product.price,
                     quantity: count
                 };
             });
@@ -189,23 +149,17 @@ const OrderScreen = () => {
             {/* Product Grid */}
             <div className="pos-product-grid">
                 {PRODUCTS.map(product => {
-                    const cartData = cart[product.id];
-                    const count = cartData ? (typeof cartData === 'number' ? cartData : cartData.count) : 0;
-                    const isCustomMode = product.id === 'custom' && customPriceMode;
+                    const count = cart[product.id] || 0;
 
                     return (
                         <div
                             key={product.id}
-                            className={`pos-product-card ${isCustomMode ? 'custom-mode' : ''}`}
+                            className="pos-product-card"
                             style={{ backgroundColor: product.color }}
                         >
                             <div className="product-info-area" onClick={() => handleProductClick(product.id)}>
                                 <span className="pos-product-name">{product.name}</span>
-                                {isCustomMode ? (
-                                    <span className="pos-product-price custom-price-input">¥{customPriceInput || '0'}</span>
-                                ) : (
-                                    <span className="pos-product-price">¥{product.price}</span>
-                                )}
+                                <span className="pos-product-price">¥{product.price}</span>
                             </div>
 
                             <div className="product-counter-area">
@@ -220,13 +174,6 @@ const OrderScreen = () => {
 
             {/* Right Side: Totals & Keypad */}
             <div className="control-panel">
-                {customPriceMode && (
-                    <div className="custom-price-indicator">
-                        <div className="indicator-text">カスタム価格入力中</div>
-                        <div className="indicator-amount">¥{(parseInt(customPriceInput, 10) || 0).toLocaleString()}</div>
-                    </div>
-                )}
-
                 <div className="customer-display-box">
                     <div className="customer-text-upside-down">
                         <div className="label">合計</div>
