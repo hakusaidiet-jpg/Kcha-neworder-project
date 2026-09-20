@@ -39,6 +39,54 @@
     height: 90%;
     width: 95%;
     margin: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    cursor: pointer;
+}
+
+/* =========================
+   価格変更モード（iOS風 震え）
+========================= */
+@keyframes ios-wobble {
+    0% {
+        transform: rotate(-1.5deg) scale(1.02);
+    }
+    25% {
+        transform: rotate(1.2deg) scale(1.02);
+    }
+    50% {
+        transform: rotate(-1deg) scale(1.02);
+    }
+    75% {
+        transform: rotate(1.5deg) scale(1.02);
+    }
+    100% {
+        transform: rotate(-1.5deg) scale(1.02);
+    }
+}
+
+.order-screen-container .pos-product-card.editing-jiggle {
+    animation: ios-wobble 0.22s infinite ease-in-out;
+    box-shadow: 0 0 0 4px #ff9800, 0 12px 25px rgba(255, 152, 0, 0.35);
+    z-index: 10;
+    filter: brightness(1.05);
+}
+
+.order-screen-container .pos-product-card.editing-jiggle::after {
+    content: "価格編集中";
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: #ff9800;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    letter-spacing: 0.5px;
 }
 
 .order-screen-container .product-info-area {
@@ -69,6 +117,15 @@
 .order-screen-container .pos-product-price {
     font-size: 1.8rem;
     opacity: 0.95;
+}
+
+.order-screen-container .pos-product-price.editing-price {
+    color: #ffeb3b;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.25);
+    padding: 2px 12px;
+    border-radius: 10px;
 }
 
 /* =========================
@@ -127,6 +184,35 @@
     height: 100%;
     box-sizing: border-box;
     overflow: hidden;
+}
+
+.order-screen-container .control-panel::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================
+   価格変更インジケーター（右側パネル）
+========================= */
+.order-screen-container .price-editing-indicator {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.25);
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.order-screen-container .price-editing-indicator .indicator-label {
+    font-size: 1.05rem;
+    font-weight: bold;
+}
+
+.order-screen-container .price-editing-indicator .indicator-hint {
+    font-size: 0.8rem;
+    opacity: 0.95;
+    margin-top: 2px;
 }
 
 /* =========================
@@ -361,13 +447,11 @@
     .order-screen-container {
         flex-direction: column;
         padding: 60px 15px 15px 15px;
-        /* Added 60px top padding for back button */
         gap: 15px;
         overflow-y: auto;
         height: auto !important;
     }
 
-    /* Product Grid Overrides */
     .order-screen-container .pos-product-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: auto;
@@ -379,35 +463,27 @@
     .order-screen-container .pos-product-card {
         width: 100%;
         height: 150px;
-        /* Reduced from 180px */
     }
 
     .order-screen-container .pos-product-name {
         font-size: 1.2rem;
-        /* Reduced */
     }
 
     .order-screen-container .pos-product-price {
         font-size: 1rem;
-        /* Reduced */
     }
 
     .order-screen-container .counter-value {
         font-size: 1.8rem;
-        /* Reduced */
         min-width: 30px;
     }
 
     .order-screen-container .counter-btn {
         width: 30px;
-        /* Reduced */
         height: 30px;
-        /* Reduced */
         font-size: 1.2rem;
-        /* Reduced */
     }
 
-    /* Control Panel Overrides */
     .order-screen-container .control-panel {
         width: 100%;
         padding: 15px;
@@ -444,12 +520,10 @@
 
     .order-screen-container .display-row .value {
         font-size: 1.4rem;
-        /* Reduced */
     }
 
     .order-screen-container .display-row.change .value {
         font-size: 2.2rem;
-        /* Reduced */
     }
 
     .order-screen-container .keypad {
@@ -461,7 +535,6 @@
     .order-screen-container .pos-complete-btn {
         height: 60px;
         font-size: 1.4rem;
-        /* Reduced */
     }
 }
 
