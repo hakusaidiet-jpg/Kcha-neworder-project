@@ -14,7 +14,7 @@ const TopMenu = () => {
 
   return (
     <div className="top-menu-wrapper">
-      <h1 className="top-menu-title">Kcha-order-pro</h1>
+      <h1 className="top-menu-title">Kcha-order</h1>
       <div className="top-menu-grid">
         {menuItems.map((item, index) => (
           <button
