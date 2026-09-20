@@ -28,6 +28,9 @@ const KitchenDisplay = () => {
             }));
     });
 
+    // 各バナーの数量(quantity)を合算した正確な杯数
+    const totalPendingCups = latteBanners.reduce((sum, banner) => sum + (Number(banner.quantity) || 1), 0);
+
     const getElapsedTimeSeconds = (createdAt) => {
         if (!createdAt) return 0;
         return Math.floor((now - createdAt) / 1000);
@@ -88,7 +91,7 @@ const KitchenDisplay = () => {
             <div className="kitchen-banner-title">
                 <span>調理場：注文状況</span>
                 <span style={{ fontSize: '1.5rem', color: '#334155', fontWeight: 'bold' }}>
-                    受付中: <span style={{ fontSize: '3rem', color: '#ef4444', marginLeft: '10px' }}>{latteBanners.length}杯</span>
+                    受付中: <span style={{ fontSize: '3rem', color: '#ef4444', marginLeft: '10px' }}>{totalPendingCups}杯</span>
                 </span>
             </div>
 
