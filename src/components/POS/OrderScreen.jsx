@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import { useMemos } from '../../hooks/useMemos';
+import { db } from '../../lib/firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import './OrderScreen.css';
 
 /* -------------------------------
@@ -93,6 +95,38 @@ const OrderScreen = () => {
         };
     }, []);
 
+    // どの端末・ブラウザでも価格を永続同期するためのFirestoreリアルタイムリスナー
+    useEffect(() => {
+        if (!db) return;
+
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'prices'), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setProducts(prevProducts => {
+                    const updated = prevProducts.map(p => ({
+                        ...p,
+                        price: typeof data[p.id] === 'number' && data[p.id] > 0 ? data[p.id] : p.price
+                    }));
+
+                    // ローカルストレージにもバックアップ保存
+                    try {
+                        const pricesMap = {};
+                        updated.forEach(p => { pricesMap[p.id] = p.price; });
+                        localStorage.setItem('kcha_product_prices', JSON.stringify(pricesMap));
+                    } catch (e) {
+                        console.error("Failed to sync prices to localStorage:", e);
+                    }
+
+                    return updated;
+                });
+            }
+        }, (error) => {
+            console.warn("Firestore prices sync warning:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     // Helper to calculate total
     const totalAmount = Object.entries(cart).reduce((sum, [id, count]) => {
         const product = products.find(p => p.id === id);
@@ -168,14 +202,26 @@ const OrderScreen = () => {
             });
             setProducts(updatedProducts);
 
+            const pricesMap = {};
+            updatedProducts.forEach(p => { pricesMap[p.id] = p.price; });
+
+            // 1. localStorage に永続保存
             try {
-                const pricesMap = {};
-                updatedProducts.forEach(p => { pricesMap[p.id] = p.price; });
                 localStorage.setItem('kcha_product_prices', JSON.stringify(pricesMap));
             } catch (e) {
-                console.error("Failed to save prices:", e);
+                console.error("Failed to save prices to localStorage:", e);
             }
 
+            // 2. Firestore に永続保存（他端末・全ブラウザに即時反映＆維持）
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'settings', 'prices'), pricesMap, { merge: true });
+                } catch (e) {
+                    console.error("Failed to save prices to Firestore:", e);
+                }
+            }
+
+            // 3. 価格変更メモの追加
             try {
                 const cleanName = targetProduct.name.replace(/\n/g, '');
                 await addMemo(`${cleanName}の価格が¥${oldPrice.toLocaleString()}から¥${newPrice.toLocaleString()}に変更されました`);
@@ -224,7 +270,7 @@ const OrderScreen = () => {
     };
 
     const handleDecrement = (id, e) => {
-        if (e) e.stopPropagation();;
+        if (e) e.stopPropagation();
         if (editingProductId) return;
 
         setCart(prev => {
@@ -358,7 +404,7 @@ const OrderScreen = () => {
                                 className="product-counter-area"
                                 onClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
-                                onTouchStart={(e) => e.stopPropagation()}
+                                touchstart={(e) => e.stopPropagation()}
                             >
                                 <button
                                     className="counter-btn minus"
