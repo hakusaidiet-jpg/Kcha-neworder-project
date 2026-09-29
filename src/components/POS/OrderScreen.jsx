@@ -40,8 +40,8 @@ const initAudio = () => {
 const DEFAULT_PRODUCTS = [
     { id: 'tea', name: 'お茶席', price: 700, color: '#6E6702' },
     { id: 'manju', name: '紅白饅頭', price: 500, color: '#C05805' },
-    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#e8f5e9' },
-    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#fce4ec' },
+    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#2e7d32' },
+    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#ad1457' },
 ];
 
 const loadSavedPrices = () => {
@@ -224,7 +224,7 @@ const OrderScreen = () => {
     };
 
     const handleDecrement = (id, e) => {
-        if (e) e.stopPropagation();
+        if (e) e.stopPropagation();;
         if (editingProductId) return;
 
         setCart(prev => {
