@@ -40,8 +40,8 @@ const initAudio = () => {
 const DEFAULT_PRODUCTS = [
     { id: 'tea', name: 'お茶席', price: 700, color: '#6E6702' },
     { id: 'manju', name: '紅白饅頭', price: 500, color: '#C05805' },
-    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#2E2300' },
-    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#DE9501' },
+    { id: 'latte', name: '抹茶ラテ', price: 500, color: '#e8f5e9' },
+    { id: 'latte_topping', name: '抹茶ラテ\n(トッピング)', price: 600, color: '#fce4ec' },
 ];
 
 const loadSavedPrices = () => {
@@ -188,7 +188,6 @@ const OrderScreen = () => {
         setEditingPriceInput('');
     };
 
-    // 数量のインクリメント（+1）
     const handleIncrement = (id, e) => {
         if (e) e.stopPropagation();
         if (editingProductId) return;
@@ -200,24 +199,6 @@ const OrderScreen = () => {
         });
     };
 
-    // 数量のデクリメント（-1）
-    const handleDecrement = (id, e) => {
-        if (e) e.stopPropagation();
-        if (editingProductId) return;
-
-        setCart(prev => {
-            const currentCount = prev[id];
-            if (!currentCount) return prev;
-            const newCount = currentCount - 1;
-            if (newCount <= 0) {
-                const { [id]: _, ...rest } = prev;
-                return rest;
-            }
-            return { ...prev, [id]: newCount };
-        });
-    };
-
-    // カード本体タップ時
     const handleCardClick = (productId) => {
         cancelPressTimer();
 
@@ -240,6 +221,22 @@ const OrderScreen = () => {
 
         // 商品カード本体タップによる注文カウント増加（+1）
         handleIncrement(productId);
+    };
+
+    const handleDecrement = (id, e) => {
+        if (e) e.stopPropagation();
+        if (editingProductId) return;
+
+        setCart(prev => {
+            const currentCount = prev[id];
+            if (!currentCount) return prev;
+            const newCount = currentCount - 1;
+            if (newCount <= 0) {
+                const { [id]: _, ...rest } = prev;
+                return rest;
+            }
+            return { ...prev, [id]: newCount };
+        });
     };
 
     const handleNumPad = (value) => {
